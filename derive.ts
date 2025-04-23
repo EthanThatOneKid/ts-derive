@@ -19,12 +19,17 @@ export function createDerive(
   initialValue: any,
 ) {
   return <TOutput, TInput = never>(
-    ...fns: Array<(input: TInput) => TOutput>
+    ...fns: Array<TOutput | ((input: TInput) => TOutput)>
   ) => {
     return (target: Class): Class => {
       const value = get(target) ?? initialValue;
-      for (const fn of fns) {
-        Object.assign(value, fn(value));
+      for (const fnOrValue of fns) {
+        Object.assign(
+          value,
+          typeof fnOrValue === "function"
+            ? (fnOrValue as (input: TInput) => TOutput)(value)
+            : fnOrValue,
+        );
       }
 
       set(target, value);
