@@ -1,6 +1,7 @@
 {
   "lock": false,
   "tasks": {
+    "test": "deno test --allow-read",
     "outdated": "deno outdated --update --latest"
   },
   "imports": {

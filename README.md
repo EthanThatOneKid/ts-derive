@@ -7,7 +7,7 @@ The "Derive" pattern with TypeScript decorators.
 Run unit tests.
 
 ```sh
-deno test
+deno task test
 ```
 
 Format code.
