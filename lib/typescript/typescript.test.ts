@@ -1,13 +1,18 @@
 import { assertEquals } from "@std/assert/equals";
 import { Project } from "ts-morph";
 import { Derive, getDerivedValue } from "../../derive.ts";
+import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "./typescript.ts";
 
-const specifier = "./lib/typescript/typescript.test.ts";
+const filePath = new FilePath("./lib/typescript/typescript.test.ts");
 const project = new Project();
-project.addSourceFileAtPath(specifier);
+project.addSourceFileAtPath(filePath.filePath);
 
-@Derive(TypeScriptClassDeclaration.getOrThrow(specifier, "Person", project))
+@Derive<{ name: string } & FilePath, TypeScriptClassDeclaration>(
+  ({ name, filePath }) =>
+    TypeScriptClassDeclaration.getOrThrow(project, filePath, name),
+)
+@Derive(filePath)
 class Person {}
 
 Deno.test({

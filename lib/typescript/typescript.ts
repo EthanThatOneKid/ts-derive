@@ -21,7 +21,7 @@ export class TypeScriptClassDeclaration {
     name: string,
   ): Promise<TypeScriptClassDeclaration> {
     const { project } = await import("./auto.ts");
-    return TypeScriptClassDeclaration.getOrThrow(filePath, name, project);
+    return TypeScriptClassDeclaration.getOrThrow(project, filePath, name);
   }
 
   /**
@@ -29,9 +29,9 @@ export class TypeScriptClassDeclaration {
    * by its file specifier and identifier.
    */
   public static getOrThrow(
+    project: Project,
     filePath: string,
     name: string,
-    project: Project,
   ): TypeScriptClassDeclaration {
     // https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API#using-the-type-checker
     const sourceFile = project.getSourceFileOrThrow(filePath);
