@@ -1,10 +1,10 @@
 import { assertEquals } from "@std/assert/equals";
 import { Derive, getDerivedValue } from "../../derive.ts";
+import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "./typescript.ts";
 
-const specifier = import.meta.url.replace(/^file:\/\/\//, "");
-
-@Derive(await TypeScriptClassDeclaration.autoGetOrThrow(specifier, "Person"))
+@Derive(await TypeScriptClassDeclaration.autoGetOrThrow())
+@Derive(FilePath.from(import.meta))
 class Person {}
 
 Deno.test({

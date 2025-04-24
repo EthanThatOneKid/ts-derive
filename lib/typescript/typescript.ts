@@ -1,4 +1,5 @@
 import type { ClassDeclarationStructure, Project } from "ts-morph";
+import type { FilePath } from "../file-path/file-path.ts";
 
 /**
  * TypeScriptClassDeclaration is the container for the TypeScript declaration of a class.
@@ -16,12 +17,14 @@ export class TypeScriptClassDeclaration {
    * autoGetOrThrow is a static method that returns a TypeScriptClassDeclaration
    * by its file specifier and identifier.
    */
-  public static async autoGetOrThrow(
-    filePath: string,
-    name: string,
-  ): Promise<TypeScriptClassDeclaration> {
+  public static async autoGetOrThrow(): Promise<
+    ({
+      name,
+      filePath,
+    }: { name: string } & FilePath) => TypeScriptClassDeclaration
+  > {
     const { project } = await import("./auto.ts");
-    return TypeScriptClassDeclaration.getOrThrow(project, filePath, name);
+    return TypeScriptClassDeclaration.getOrThrow(project);
   }
 
   /**
@@ -30,12 +33,25 @@ export class TypeScriptClassDeclaration {
    */
   public static getOrThrow(
     project: Project,
-    filePath: string,
-    name: string,
-  ): TypeScriptClassDeclaration {
-    // https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API#using-the-type-checker
-    const sourceFile = project.getSourceFileOrThrow(filePath);
-    const classDeclaration = sourceFile.getClassOrThrow(name);
-    return new TypeScriptClassDeclaration(classDeclaration.getStructure());
+  ): ({
+    name,
+    filePath,
+  }: { name: string } & FilePath) => TypeScriptClassDeclaration {
+    return ({ name, filePath }: { name: string } & FilePath) => {
+      return new TypeScriptClassDeclaration(
+        getClassStructureOrThrow(project, filePath, name),
+      );
+    };
   }
+}
+
+function getClassStructureOrThrow(
+  project: Project,
+  filePath: string,
+  name: string,
+): ClassDeclarationStructure {
+  // https://github.com/microsoft/TypeScript/wiki/Using-the-Compiler-API#using-the-type-checker
+  const sourceFile = project.getSourceFileOrThrow(filePath);
+  const classDeclaration = sourceFile.getClassOrThrow(name);
+  return classDeclaration.getStructure();
 }

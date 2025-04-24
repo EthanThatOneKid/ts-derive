@@ -8,10 +8,7 @@ const filePath = new FilePath("./lib/typescript/typescript.test.ts");
 const project = new Project();
 project.addSourceFileAtPath(filePath.filePath);
 
-@Derive<{ name: string } & FilePath, TypeScriptClassDeclaration>(
-  ({ name, filePath }) =>
-    TypeScriptClassDeclaration.getOrThrow(project, filePath, name),
-)
+@Derive(TypeScriptClassDeclaration.getOrThrow(project))
 @Derive(filePath)
 class Person {}
 
