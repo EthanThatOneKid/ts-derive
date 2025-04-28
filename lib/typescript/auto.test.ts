@@ -11,6 +11,6 @@ Deno.test({
   name: "Derive TypeScriptClassDeclaration example (auto)",
   fn: () => {
     const actual = getDerivedValue<TypeScriptClassDeclaration>(Person);
-    assertEquals(actual.declaration.name, "Person");
+    assertEquals(actual.classDeclaration.name, "Person");
   },
 });

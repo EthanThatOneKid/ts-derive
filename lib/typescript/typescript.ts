@@ -10,7 +10,7 @@ export class TypeScriptClassDeclaration {
    */
   public constructor(
     // TODO: Expose type info.
-    public declaration: ClassDeclarationStructure,
+    public classDeclaration: ClassDeclarationStructure,
   ) {}
 
   /**
