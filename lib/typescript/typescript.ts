@@ -2,7 +2,8 @@ import type { ClassDeclarationStructure, Project } from "ts-morph";
 import type { FilePath } from "../file-path/file-path.ts";
 
 /**
- * TypeScriptClassDeclaration is the container for the TypeScript declaration of a class.
+ * TypeScriptClassDeclaration is the container for the TypeScript declaration
+ * of a class using `ts-morph`.
  */
 export class TypeScriptClassDeclaration {
   /**

@@ -6,10 +6,11 @@ import type {
   PropertySignatureStructure,
 } from "ts-morph";
 import { Project, StructureKind } from "ts-morph";
-import type { JSONSchemaObject } from "../json-schema.ts";
+import type { JSONSchemaObject } from "./shared.ts";
 
 /**
- * compile compiles the class declaration into a JSON Schema object.
+ * compile compiles the class declaration into a JSON Schema object using
+ * `@sinclair/typemap` and `ts-morph`.
  */
 export function compile(
   classDeclaration: ClassDeclarationStructure,
@@ -27,7 +28,7 @@ export function serialize(classDeclaration: ClassDeclarationStructure): string {
     getInterfaceDeclaration(classDeclaration),
   );
 
-  return interfaceDeclaration.getFullText();
+  return `{ ${interfaceDeclaration.getChildSyntaxListOrThrow().getText()} }`;
 }
 
 /**
@@ -56,15 +57,23 @@ function getProperties(
 ): OptionalKind<PropertySignatureStructure>[] {
   return [
     ...(classDeclaration.properties?.map(
-      (property): OptionalKind<PropertySignatureStructure> => {
+      ({
+        scope: _scope,
+        ...property
+      }): OptionalKind<PropertySignatureStructure> => {
         return { ...property, kind: StructureKind.PropertySignature };
       },
     ) ?? []),
     ...(classDeclaration.ctors
       ?.at(-1)
       ?.parameters?.filter((parameter) => parameter.scope === "public")
-      ?.map((parameter): OptionalKind<PropertySignatureStructure> => {
-        return { ...parameter, kind: StructureKind.PropertySignature };
-      }) ?? []),
+      ?.map(
+        ({
+          scope: _scope,
+          ...parameter
+        }): OptionalKind<PropertySignatureStructure> => {
+          return { ...parameter, kind: StructureKind.PropertySignature };
+        },
+      ) ?? []),
   ];
 }
