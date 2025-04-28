@@ -3,10 +3,10 @@ import { Derive, getDerivedValue } from "../../derive.ts";
 import { ResourceMap } from "./resource-map.ts";
 
 interface Store {
-  store: ResourceMap<string, Person, "givenName">;
+  store: ResourceMap<string, Person>;
 }
 
-@Derive(() => ({ store: ResourceMap.primaryKey("givenName") }))
+@Derive(() => ({ store: new ResourceMap((value: Person) => value.givenName) }))
 class Person {
   public constructor(public givenName: string) {}
 }
