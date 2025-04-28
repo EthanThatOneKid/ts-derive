@@ -6,7 +6,7 @@ import { serialize } from "./auto-schema.ts";
 import { JSONSchema } from "./json-schema.ts";
 
 @Derive(JSONSchema.auto())
-@Derive(await TypeScriptClassDeclaration.autoGetOrThrow())
+@Derive(await TypeScriptClassDeclaration.auto())
 @Derive(FilePath.from(import.meta))
 class Person {
   public familyName?: string;

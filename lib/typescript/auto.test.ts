@@ -3,7 +3,7 @@ import { Derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "./typescript.ts";
 
-@Derive(await TypeScriptClassDeclaration.autoGetOrThrow())
+@Derive(await TypeScriptClassDeclaration.auto())
 @Derive(FilePath.from(import.meta))
 class Person {}
 

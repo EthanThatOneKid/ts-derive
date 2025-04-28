@@ -15,10 +15,10 @@ export class TypeScriptClassDeclaration {
   ) {}
 
   /**
-   * autoGetOrThrow is a static method that returns a TypeScriptClassDeclaration
-   * by its file specifier and identifier.
+   * auto is a static method that returns a TypeScriptClassDeclaration by its
+   * file specifier and identifier.
    */
-  public static async autoGetOrThrow(): Promise<
+  public static async auto(): Promise<
     ({
       name,
       filePath,
