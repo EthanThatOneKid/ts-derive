@@ -1,0 +1,8 @@
+{
+  "type": "object",
+  "properties": {
+    "familyName": { "type": "string" },
+    "givenName": { "type": "string" }
+  },
+  "required": ["givenName"]
+}

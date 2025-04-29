@@ -15,7 +15,10 @@ import type { JSONSchemaObject } from "./shared.ts";
 export function compile(
   classDeclaration: ClassDeclarationStructure,
 ): JSONSchemaObject {
-  return TypeBoxFromSyntax({}, serialize(classDeclaration));
+  return TypeBoxFromSyntax(
+    {}, // https://github.com/sinclairzx81/typemap?tab=readme-ov-file#parameters
+    serialize(classDeclaration),
+  );
 }
 
 /**
