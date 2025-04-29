@@ -1,5 +1,7 @@
-import type { JSONSchema } from "../json-schema/json-schema.ts";
-import type { JSONSchemaObject } from "../json-schema/shared.ts";
+import type {
+  JSONSchema,
+  JSONSchemaObject,
+} from "../json-schema/json-schema.ts";
 
 /**
  * Generate derives generated code.
@@ -19,10 +21,10 @@ export class Generate {
    * jsonSchema writes the JSON Schema representation of a class to a file.
    */
   public static jsonSchema(write: (result: JSONSchemaObject) => Promise<void>) {
-    return (({ jsonSchema }: JSONSchema) => {
+    return ({ jsonSchema }: JSONSchema) => {
       return new Generate(async () => {
         await write(jsonSchema);
       });
-    });
+    };
   }
 }

@@ -1,6 +1,28 @@
+import type { SchemaOptions, TParameters } from "@sinclair/typebox";
+import type { TTypeBox } from "@sinclair/typemap";
+import { TypeBoxFromSyntax } from "@sinclair/typemap";
 import type { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
-import type { JSONSchemaObject } from "./shared.ts";
-import { compile } from "./auto-schema.ts";
+import { serialize } from "./auto-schema.ts";
+
+export interface JSONSchemaOptions {
+  /**
+   * context are the references to the classes that are used in the class
+   * declaration.
+   *
+   * @see
+   * https://github.com/sinclairzx81/typemap?tab=readme-ov-file#parameters
+   */
+  // deno-lint-ignore no-explicit-any
+  context: TParameters<any>;
+
+  /**
+   * schemaOptions are options for `@sinclar/typebox`.
+   */
+  schemaOptions?: SchemaOptions;
+}
+
+// deno-lint-ignore no-explicit-any
+export type JSONSchemaObject = TTypeBox<any, any, any>;
 
 /**
  * JSONSchema is the JSON Schema representation of a class.
@@ -11,9 +33,15 @@ export class JSONSchema {
   // TODO: Associate class with JSONSchema dependencies that are referenced
   // by the class.
 
-  public static auto() {
+  public static auto(options?: JSONSchemaOptions) {
     return ({ classDeclaration }: TypeScriptClassDeclaration): JSONSchema => {
-      return new JSONSchema(compile(classDeclaration));
+      return new JSONSchema(
+        TypeBoxFromSyntax(
+          options?.context ?? {},
+          serialize(classDeclaration),
+          options?.schemaOptions,
+        ),
+      );
     };
   }
 }

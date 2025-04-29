@@ -4,7 +4,7 @@ import { toCamelCase } from "@std/text/to-camel-case";
 import pluralize from "@wei/pluralize";
 import type { Class } from "../../derive.ts";
 import { getDerivedValue } from "../../derive.ts";
-import type { ZodSchema } from "../json-schema/zod-schema.ts";
+import type { JSONSchema } from "../json-schema/json-schema.ts";
 
 /**
  * StandardMethodRouteOptions are options for standardMethodRoute.
@@ -44,7 +44,7 @@ export function standardMethodRoute(
     options.parent,
   );
 
-  const { zodObject } = getDerivedValue<ZodSchema>(target);
+  const { jsonSchema } = getDerivedValue<JSONSchema>(target);
   return {
     pattern,
     method,
@@ -52,9 +52,11 @@ export function standardMethodRoute(
       // const param = params?.pathname.groups?.[toCamelCase(resourceName)];
       switch (options.standardMethod) {
         case "create": {
+          console.log({ validator: jsonSchema?.["~standard"] });
+
           const body = await request.json();
-          const validation = zodObject.safeParse(body);
-          console.log({ validation });
+          // const validation =
+          // console.log({ validation });
           return new Response("Method not implemented", { status: 501 });
         }
 
