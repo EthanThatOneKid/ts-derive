@@ -17,7 +17,8 @@ class Person {
 Deno.test({
   name: "Derive JSONSchema example",
   fn: () => {
-    const actual = getDerivedValue<JSONSchema>(Person).jsonSchema;
+    // deno-lint-ignore no-explicit-any
+    const actual = getDerivedValue<JSONSchema>(Person).jsonSchema as any;
     assertEquals(actual.properties.familyName.type, "string");
     assertEquals(actual.properties.givenName.type, "string");
     assertEquals(actual.required, ["givenName"]);

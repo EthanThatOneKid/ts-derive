@@ -3,16 +3,21 @@ import { slugify } from "@std/text/unstable-slugify";
 import { toCamelCase } from "@std/text/to-camel-case";
 import pluralize from "@wei/pluralize";
 import type { Class } from "../../derive.ts";
+import { getDerivedValue } from "../../derive.ts";
+import type { ZodSchema } from "../json-schema/zod-schema.ts";
 
 /**
  * StandardMethodRouteOptions are options for standardMethodRoute.
  */
 export interface StandardMethodRouteOptions {
   standardMethod: StandardMethod;
-  store: Deno.Kv;
+  kv: Deno.Kv;
   resourceName?: string;
   collectionIdentifier?: string;
   parent?: string;
+
+  // TODO: Add input and output strategies e.g. request body and URL search params.
+  // TODO: Add validation strategies e.g. standardschema.dev, Ajv, Zod, etc.
 }
 
 /**
@@ -22,6 +27,7 @@ export function standardMethodRoute(
   target: Class,
   options: StandardMethodRouteOptions,
 ): Route {
+  console.log(target, options);
   const resourceName = options.resourceName ?? target.name;
   const method = toHTTPMethod(options.standardMethod);
   const pattern = toRoutePattern(
@@ -31,13 +37,24 @@ export function standardMethodRoute(
     options.parent,
   );
 
+  const { zodObject } = getDerivedValue<ZodSchema>(target);
   return {
     pattern,
     method,
-    handler: (request, params, _info) => {
-      const resource = params?.pathname.groups?.[toCamelCase(resourceName)];
-      console.log({ request, resource });
-      return new Response("Method not implemented");
+    handler: async (request, _params, _info) => {
+      // const param = params?.pathname.groups?.[toCamelCase(resourceName)];
+      switch (options.standardMethod) {
+        case "create": {
+          const body = await request.json();
+          const validation = zodObject.safeParse(body);
+          console.log({ validation });
+          return new Response("Method not implemented", { status: 501 });
+        }
+
+        default: {
+          return new Response("Method not implemented", { status: 501 });
+        }
+      }
     },
   };
 }

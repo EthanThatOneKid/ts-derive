@@ -1,3 +1,4 @@
+import type { AnyZodObject } from "zod";
 import { z } from "zod";
 import { Zod } from "@sinclair/typemap";
 import type { JSONSchema } from "./json-schema.ts";
@@ -22,7 +23,7 @@ export class ZodSchema {
    */
   public static auto() {
     return ({ jsonSchema }: JSONSchema): ZodSchema => {
-      return new ZodSchema(Zod(jsonSchema));
+      return new ZodSchema(Zod(jsonSchema) as unknown as AnyZodObject);
     };
   }
 }

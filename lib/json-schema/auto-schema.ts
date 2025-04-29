@@ -1,3 +1,4 @@
+import type { TProperties } from "@sinclair/typebox";
 import { TypeBoxFromSyntax } from "@sinclair/typemap";
 import type {
   ClassDeclarationStructure,
@@ -8,17 +9,28 @@ import type {
 import { Project, StructureKind } from "ts-morph";
 import type { JSONSchemaObject } from "./shared.ts";
 
+export interface CompileOptions {
+  /**
+   * context are references to the classes that are used in the class declaration.
+   *
+   * @see
+   * https://github.com/sinclairzx81/typemap?tab=readme-ov-file#parameters
+   */
+  context?: TProperties;
+}
+
 /**
  * compile compiles the class declaration into a JSON Schema object using
  * `@sinclair/typemap` and `ts-morph`.
  */
 export function compile(
   classDeclaration: ClassDeclarationStructure,
+  options: CompileOptions = {},
 ): JSONSchemaObject {
   return TypeBoxFromSyntax(
-    {}, // https://github.com/sinclairzx81/typemap?tab=readme-ov-file#parameters
+    options.context ?? {},
     serialize(classDeclaration),
-  );
+  ) as unknown as JSONSchemaObject;
 }
 
 /**

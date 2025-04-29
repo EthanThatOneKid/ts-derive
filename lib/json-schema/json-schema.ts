@@ -8,6 +8,9 @@ import { compile } from "./auto-schema.ts";
 export class JSONSchema {
   public constructor(public jsonSchema: JSONSchemaObject) {}
 
+  // TODO: Associate class with JSONSchema dependencies that are referenced
+  // by the class.
+
   public static auto() {
     return ({ classDeclaration }: TypeScriptClassDeclaration): JSONSchema => {
       return new JSONSchema(compile(classDeclaration));
