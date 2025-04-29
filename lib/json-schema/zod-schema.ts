@@ -1,12 +1,13 @@
 import type { AnyZodObject } from "zod";
-import { z } from "zod";
 import { Zod } from "@sinclair/typemap";
 import type { JSONSchema } from "./json-schema.ts";
+
+export type { AnyZodObject };
 
 /**
  * ZodSchema is the Zod schema representation of a class.
  */
-export class ZodSchema {
+export class ZodObject {
   /**
    * constructor is the constructor of the SourceCode class.
    */
@@ -14,7 +15,7 @@ export class ZodSchema {
     /**
      * zodObject is the Zod schema of a class.
      */
-    public zodObject: z.AnyZodObject,
+    public zodObject: AnyZodObject,
   ) {}
 
   /**
@@ -22,8 +23,8 @@ export class ZodSchema {
    * representation.
    */
   public static auto() {
-    return ({ jsonSchema }: JSONSchema): ZodSchema => {
-      return new ZodSchema(Zod(jsonSchema) as unknown as AnyZodObject);
+    return ({ jsonSchema }: JSONSchema): ZodObject => {
+      return new ZodObject(Zod(jsonSchema) as unknown as AnyZodObject);
     };
   }
 }

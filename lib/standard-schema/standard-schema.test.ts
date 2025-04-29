@@ -16,19 +16,23 @@ class Person {
 Deno.test({
   name: "Derive StandardSchema example",
   fn: async (t) => {
-    const { standardSchema } = getDerivedValue<StandardSchema>(Person);
+    const standardSchema =
+      getDerivedValue<StandardSchema>(Person).standardSchemaV1["~standard"];
 
-    await t.step("Standard Schema validates valid instance", () => {
+    await t.step("Standard Schema validates valid instance", async () => {
       const validPerson = new Person("Ash");
-      const result = standardSchema["~standard"].validate(validPerson);
+      const result = await standardSchema.validate(validPerson);
       assertEquals(result.issues, undefined);
     });
 
-    await t.step("Standard Schema does not validate invalid instance", () => {
-      const invalidPerson = new Person(0 as unknown as string);
-      const result = standardSchema["~standard"].validate(invalidPerson);
-      assertEquals(result.issues?.length, 1);
-      assertEquals(result.issues?.[0].message, "Expected string");
-    });
+    await t.step(
+      "Standard Schema does not validate invalid instance",
+      async () => {
+        const invalidPerson = new Person(0 as unknown as string);
+        const result = await standardSchema.validate(invalidPerson);
+        assertEquals(result.issues?.length, 1);
+        assertEquals(result.issues?.[0].message, "Expected string");
+      },
+    );
   },
 });

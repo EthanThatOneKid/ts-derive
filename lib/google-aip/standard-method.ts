@@ -4,7 +4,7 @@ import { toCamelCase } from "@std/text/to-camel-case";
 import pluralize from "@wei/pluralize";
 import type { Class } from "../../derive.ts";
 import { getDerivedValue } from "../../derive.ts";
-import type { JSONSchema } from "../json-schema/json-schema.ts";
+import type { StandardSchema } from "../standard-schema/standard-schema.ts";
 
 /**
  * StandardMethodRouteOptions are options for standardMethodRoute.
@@ -44,7 +44,8 @@ export function standardMethodRoute(
     options.parent,
   );
 
-  const { jsonSchema } = getDerivedValue<JSONSchema>(target);
+  const standardSchema =
+    getDerivedValue<StandardSchema>(target).standardSchemaV1["~standard"];
   return {
     pattern,
     method,
@@ -52,11 +53,9 @@ export function standardMethodRoute(
       // const param = params?.pathname.groups?.[toCamelCase(resourceName)];
       switch (options.standardMethod) {
         case "create": {
-          console.log({ validator: jsonSchema?.["~standard"] });
+          const body = await standardSchema.validate(await request.json());
+          console.log({ body });
 
-          const body = await request.json();
-          // const validation =
-          // console.log({ validation });
           return new Response("Method not implemented", { status: 501 });
         }
 

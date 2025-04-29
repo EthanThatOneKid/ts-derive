@@ -2,10 +2,10 @@ import { Derive } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { JSONSchema } from "../json-schema/json-schema.ts";
-import { ZodSchema } from "../json-schema/zod-schema.ts";
+import { ZodObject } from "../json-schema/zod-schema.ts";
 import { standardMethodRoute } from "./standard-method.ts";
 
-@Derive(ZodSchema.auto())
+@Derive(ZodObject.auto())
 @Derive(JSONSchema.auto())
 @Derive(await TypeScriptClassDeclaration.auto())
 @Derive(FilePath.from(import.meta))
