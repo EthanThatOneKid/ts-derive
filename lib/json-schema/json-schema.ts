@@ -4,6 +4,9 @@ import { TypeBoxFromSyntax } from "@sinclair/typemap";
 import type { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { serialize } from "./auto-schema.ts";
 
+/**
+ * JSONSchemaOptions are options for `JSONSchema`.
+ */
 export interface JSONSchemaOptions {
   /**
    * context are the references to the classes that are used in the class
@@ -26,6 +29,8 @@ export type JSONSchemaObject = TTypeBox<any, any, any>;
 
 /**
  * JSONSchema is the JSON Schema representation of a class.
+ *
+ * @see https://json-schema.org
  */
 export class JSONSchema {
   public constructor(public jsonSchema: JSONSchemaObject) {}
