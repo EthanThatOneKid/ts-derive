@@ -5,8 +5,6 @@ import { JSONSchema } from "../json-schema/json-schema.ts";
 import { ZodSchema } from "../json-schema/zod-schema.ts";
 import { standardMethodRoute } from "./standard-method.ts";
 
-await using kv = await Deno.openKv(":memory:");
-
 @Derive(ZodSchema.auto())
 @Derive(JSONSchema.auto())
 @Derive(await TypeScriptClassDeclaration.auto())
@@ -22,10 +20,11 @@ if (import.meta.main) {
   const dude = new Person("The Big Lebowski");
   console.log({ dude });
 
-  const route = standardMethodRoute(
-    Person,
-    { kv, standardMethod: "create" },
-  );
+  const kv = await Deno.openKv(":memory:");
+  const route = standardMethodRoute(Person, {
+    store: { kv },
+    standardMethod: "create",
+  });
   const response = await route.handler(new Request("http://localhost"));
   console.log({ response });
 }

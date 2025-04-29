@@ -11,13 +11,20 @@ import type { ZodSchema } from "../json-schema/zod-schema.ts";
  */
 export interface StandardMethodRouteOptions {
   standardMethod: StandardMethod;
-  kv: Deno.Kv;
+  store: {
+    kv: Deno.Kv;
+    kvPrefix?: <T>(resource: T) => Deno.KvKey;
+  };
+
   resourceName?: string;
   collectionIdentifier?: string;
   parent?: string;
 
   // TODO: Add input and output strategies e.g. request body and URL search params.
   // TODO: Add validation strategies e.g. standardschema.dev, Ajv, Zod, etc.
+  // TODO: Add persistent store strategies e.g. Deno.Kv, N3, LibSQL, etc.
+  // TODO: Add authorization strategies e.g. deno_kv_oauth, etc.
+  // TODO: Add custom middleware e.g. cors, etc.
 }
 
 /**
