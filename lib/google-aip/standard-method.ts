@@ -13,7 +13,9 @@ export interface StandardMethodRouteOptions {
   standardMethod: StandardMethod;
   store: {
     kv: Deno.Kv;
-    kvPrefix?: <T>(resource: T) => Deno.KvKey;
+    kvKey: (body: unknown) => Deno.KvKey | Promise<Deno.KvKey>;
+    kvKeyFromID: (id: string) => Deno.KvKey | Promise<Deno.KvKey>;
+    // TODO: Refactor kvKey to support multiple path parameters.
   };
 
   resourceName?: string;
@@ -34,7 +36,6 @@ export function standardMethodRoute(
   target: Class,
   options: StandardMethodRouteOptions,
 ): Route {
-  console.log(target, options);
   const resourceName = options.resourceName ?? target.name;
   const method = toHTTPMethod(options.standardMethod);
   const pattern = toRoutePattern(
@@ -49,14 +50,38 @@ export function standardMethodRoute(
   return {
     pattern,
     method,
-    handler: async (request, _params, _info) => {
-      // const param = params?.pathname.groups?.[toCamelCase(resourceName)];
+    handler: async (request, params, _info) => {
+      const id = params?.pathname.groups?.[toCamelCase(resourceName)];
       switch (options.standardMethod) {
-        case "create": {
+        // TODO: Write unit test.
+        case "create": { // https://google.aip.dev/133
           const body = await standardSchema.validate(await request.json());
-          console.log({ body });
+          if (body.issues !== undefined) {
+            return new Response(JSON.stringify(body), { status: 400 });
+          }
 
-          return new Response("Method not implemented", { status: 501 });
+          const kvKey = await options.store.kvKey(body);
+          const result = await options.store.kv.set(kvKey, body);
+          if (!result.ok) {
+            return new Response(JSON.stringify(result), { status: 500 });
+          }
+
+          return new Response(JSON.stringify(body), { status: 201 });
+        }
+
+        // TODO: Write unit test.
+        case "get": { // https://google.aip.dev/133
+          if (id === undefined) {
+            return new Response("No ID", { status: 400 });
+          }
+
+          const kvKey = await options.store.kvKeyFromID(id);
+          const result = await options.store.kv.get(kvKey);
+          if (!result) {
+            return new Response("Not found", { status: 404 });
+          }
+
+          return new Response(JSON.stringify(result), { status: 200 });
         }
 
         default: {
