@@ -1,7 +1,7 @@
 {
   "lock": false,
   "tasks": {
-    "test": "deno test --allow-read --allow-write --allow-env --allow-sys && deno fmt",
+    "test": "deno test --unstable-kv --allow-read --allow-write --allow-env --allow-sys && deno fmt",
     "outdated": "deno outdated --update --latest"
   },
   "imports": {

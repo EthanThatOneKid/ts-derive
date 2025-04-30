@@ -12,10 +12,22 @@ import type { StandardSchema } from "../standard-schema/standard-schema.ts";
 export interface StandardMethodRouteOptions {
   standardMethod: StandardMethod;
   store: {
+    /**
+     * kv is the persistent store.
+     */
     kv: Deno.Kv;
-    kvKey: (body: unknown) => Deno.KvKey | Promise<Deno.KvKey>;
-    kvKeyFromID: (id: string) => Deno.KvKey | Promise<Deno.KvKey>;
-    // TODO: Refactor kvKey to support multiple path parameters.
+
+    /**
+     * kvKey returns the key to use by ID.
+     */
+    kvKey: (id: string) => Deno.KvKey | Promise<Deno.KvKey>;
+
+    /**
+     * kvKeyOf calculates the key to use for the resource.
+     */
+    // deno-lint-ignore no-explicit-any
+    kvKeyOf: (resource: any) => Deno.KvKey | Promise<Deno.KvKey>;
+    // TODO: Refactor kvKey to support multiple IDs (path parameters).
   };
 
   resourceName?: string;
@@ -30,7 +42,9 @@ export interface StandardMethodRouteOptions {
 }
 
 /**
- * standardMethodRoute returns a route for a standard method.
+ * standardMethodRoute returns a route for a Google AIP standard method.
+ *
+ * @see https://google.aip.dev/130
  */
 export function standardMethodRoute(
   target: Class,
@@ -53,29 +67,33 @@ export function standardMethodRoute(
     handler: async (request, params, _info) => {
       const id = params?.pathname.groups?.[toCamelCase(resourceName)];
       switch (options.standardMethod) {
-        // TODO: Write unit test.
-        case "create": { // https://google.aip.dev/133
-          const body = await standardSchema.validate(await request.json());
-          if (body.issues !== undefined) {
-            return new Response(JSON.stringify(body), { status: 400 });
+        case "create": {
+          // https://google.aip.dev/133
+          // deno-lint-ignore no-explicit-any
+          const validated: any = await standardSchema.validate(
+            await request.json(),
+          );
+          if (validated.issues !== undefined) {
+            return new Response(JSON.stringify(validated), { status: 400 });
           }
 
-          const kvKey = await options.store.kvKey(body);
-          const result = await options.store.kv.set(kvKey, body);
+          const kvKey = await options.store.kvKeyOf(validated.value);
+          const result = await options.store.kv.set(kvKey, validated.value);
           if (!result.ok) {
             return new Response(JSON.stringify(result), { status: 500 });
           }
 
-          return new Response(JSON.stringify(body), { status: 201 });
+          return new Response(JSON.stringify(validated.value), { status: 201 });
         }
 
         // TODO: Write unit test.
-        case "get": { // https://google.aip.dev/133
+        case "get": {
+          // https://google.aip.dev/133
           if (id === undefined) {
             return new Response("No ID", { status: 400 });
           }
 
-          const kvKey = await options.store.kvKeyFromID(id);
+          const kvKey = await options.store.kvKey(id);
           const result = await options.store.kv.get(kvKey);
           if (!result) {
             return new Response("Not found", { status: 404 });
