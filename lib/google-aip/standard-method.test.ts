@@ -1,4 +1,5 @@
 import { assertEquals } from "@std/assert";
+import { route } from "@std/http/unstable-route";
 import { Derive } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
@@ -19,7 +20,7 @@ function personKvKey(id: string) {
 }
 
 function personKvKeyOf(resource: Person) {
-  return ["person", resource?.givenName];
+  return ["person", resource.givenName];
 }
 
 Deno.test({
@@ -32,21 +33,51 @@ Deno.test({
     await t.step(
       "Standard method Create handler handles valid request",
       async () => {
-        const request = new Request("http://localhost", {
+        const request = new Request("http://localhost/people", {
           method: "POST",
           body: JSON.stringify(ash),
         });
 
         const createRoute = standardMethodRoute(Person, {
           standardMethod: "create",
-          resourceName: "person",
           store: { kv, kvKey: personKvKey, kvKeyOf: personKvKeyOf },
         });
-        const response = await createRoute.handler(request);
+
+        const createHandler = route(
+          [createRoute],
+          () => {
+            throw new Error("Not implemented");
+          },
+        );
+        const response = await createHandler(request);
         assertEquals(response.status, 201);
 
-        const createResponse = await response.json();
-        assertEquals(createResponse.givenName, ash.givenName);
+        const personResponse = await response.json();
+        assertEquals(personResponse.givenName, ash.givenName);
+      },
+    );
+
+    await t.step(
+      "Standard method Get handler handles valid request",
+      async () => {
+        const request = new Request(`http://localhost/people/${ash.givenName}`);
+
+        const getRoute = standardMethodRoute(Person, {
+          standardMethod: "get",
+          store: { kv, kvKey: personKvKey, kvKeyOf: personKvKeyOf },
+        });
+        const getHandler = route(
+          [getRoute],
+          () => {
+            throw new Error("Not implemented");
+          },
+        );
+        const response = await getHandler(request);
+        assertEquals(response.status, 200);
+
+        const personResponse = await response.json();
+        console.log({ personResponse });
+        assertEquals(personResponse.givenName, ash.givenName);
       },
     );
   },

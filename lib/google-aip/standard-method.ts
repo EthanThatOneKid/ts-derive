@@ -48,7 +48,7 @@ export interface StandardMethodRouteOptions {
  */
 export function standardMethodRoute(
   target: Class,
-  options: StandardMethodRouteOptions,
+  options: StandardMethodRouteOptions
 ): Route {
   const resourceName = options.resourceName ?? target.name;
   const method = toHTTPMethod(options.standardMethod);
@@ -56,7 +56,7 @@ export function standardMethodRoute(
     options.standardMethod,
     resourceName,
     options.collectionIdentifier,
-    options.parent,
+    options.parent
   );
 
   const standardSchema =
@@ -71,7 +71,7 @@ export function standardMethodRoute(
           // https://google.aip.dev/133
           // deno-lint-ignore no-explicit-any
           const validated: any = await standardSchema.validate(
-            await request.json(),
+            await request.json()
           );
           if (validated.issues !== undefined) {
             return new Response(JSON.stringify(validated), { status: 400 });
@@ -86,20 +86,19 @@ export function standardMethodRoute(
           return new Response(JSON.stringify(validated.value), { status: 201 });
         }
 
-        // TODO: Write unit test.
         case "get": {
           // https://google.aip.dev/133
           if (id === undefined) {
             return new Response("No ID", { status: 400 });
           }
 
-          const kvKey = await options.store.kvKey(id);
+          const kvKey = await options.store.kvKey(decodeURIComponent(id));
           const result = await options.store.kv.get(kvKey);
-          if (!result) {
+          if (result.value === null) {
             return new Response("Not found", { status: 404 });
           }
 
-          return new Response(JSON.stringify(result), { status: 200 });
+          return new Response(JSON.stringify(result.value), { status: 200 });
         }
 
         default: {
@@ -117,7 +116,7 @@ export function toRoutePattern(
   standardMethod: StandardMethod,
   resourceName: string,
   collectionIdentifier?: string,
-  parent?: string,
+  parent?: string
 ): URLPattern {
   switch (standardMethod) {
     case "create":
@@ -131,13 +130,11 @@ export function toRoutePattern(
     case "update":
     case "delete": {
       return new URLPattern({
-        pathname: `${
-          toRoutePath(
-            resourceName,
-            collectionIdentifier,
-            parent,
-          )
-        }/:${toCamelCase(resourceName)}`,
+        pathname: `${toRoutePath(
+          resourceName,
+          collectionIdentifier,
+          parent
+        )}/:${toCamelCase(resourceName)}`,
       });
     }
 
@@ -153,7 +150,7 @@ export function toRoutePattern(
 export function toRoutePath(
   resourceName: string,
   collectionIdentifier?: string,
-  parent?: string,
+  parent?: string
 ): string {
   return `${parent ?? ""}/${
     collectionIdentifier ?? toCollectionIdentifier(resourceName)
@@ -176,16 +173,16 @@ export function toHTTPMethod(method: StandardMethod): string {
   switch (method) {
     case "get":
     case "list": {
-      return "get";
+      return "GET";
     }
 
     case "create":
     case "update": {
-      return "post";
+      return "POST";
     }
 
     case "delete": {
-      return "delete";
+      return "DELETE";
     }
 
     default:
