@@ -25,9 +25,31 @@ export interface StandardMethodRouteOptions {
     /**
      * kvKeyOf calculates the key to use for the resource.
      */
-    // deno-lint-ignore no-explicit-any
-    kvKeyOf: (resource: any) => Deno.KvKey | Promise<Deno.KvKey>;
-    // TODO: Refactor kvKey to support multiple IDs (path parameters).
+    kvKeyOf: (
+      // deno-lint-ignore no-explicit-any
+      resource: any,
+      sessionID?: string,
+    ) => Deno.KvKey | Promise<Deno.KvKey>;
+
+    /**
+     * expireIn is the expiration time in milliseconds on the persistent store.
+     */
+    expireIn?: number;
+    // TODO: Refactor kvKey to support multiple IDs (parent path parameters).
+  };
+
+  /**
+   * oAuth2 is the OAuth 2.0 authentication strategy.
+   *
+   * @see https://jsr.io/@deno/kv-oauth
+   */
+  oAuth2?: {
+    /**
+     * getSessionID returns the session ID.
+     */
+    getSessionID: (
+      request: Request,
+    ) => string | undefined | Promise<string | undefined>;
   };
 
   resourceName?: string;
@@ -37,7 +59,6 @@ export interface StandardMethodRouteOptions {
   // TODO: Add input and output strategies e.g. request body and URL search params.
   // TODO: Add validation strategies e.g. standardschema.dev, Ajv, Zod, etc.
   // TODO: Add persistent store strategies e.g. Deno.Kv, N3, LibSQL, etc.
-  // TODO: Add authorization strategies e.g. deno_kv_oauth, etc.
   // TODO: Add custom middleware e.g. cors, etc.
 }
 
@@ -48,7 +69,7 @@ export interface StandardMethodRouteOptions {
  */
 export function standardMethodRoute(
   target: Class,
-  options: StandardMethodRouteOptions
+  options: StandardMethodRouteOptions,
 ): Route {
   const resourceName = options.resourceName ?? target.name;
   const method = toHTTPMethod(options.standardMethod);
@@ -56,7 +77,7 @@ export function standardMethodRoute(
     options.standardMethod,
     resourceName,
     options.collectionIdentifier,
-    options.parent
+    options.parent,
   );
 
   const standardSchema =
@@ -65,20 +86,25 @@ export function standardMethodRoute(
     pattern,
     method,
     handler: async (request, params, _info) => {
+      const sessionID = await options.oAuth2?.getSessionID(request);
       const id = params?.pathname.groups?.[toCamelCase(resourceName)];
       switch (options.standardMethod) {
         case "create": {
           // https://google.aip.dev/133
           // deno-lint-ignore no-explicit-any
           const validated: any = await standardSchema.validate(
-            await request.json()
+            await request.json(),
           );
           if (validated.issues !== undefined) {
             return new Response(JSON.stringify(validated), { status: 400 });
           }
 
-          const kvKey = await options.store.kvKeyOf(validated.value);
-          const result = await options.store.kv.set(kvKey, validated.value);
+          const kvKey = await options.store.kvKeyOf(validated.value, sessionID);
+          const result = await options.store.kv.set(
+            kvKey,
+            validated.value,
+            { expireIn: options.store.expireIn },
+          );
           if (!result.ok) {
             return new Response(JSON.stringify(result), { status: 500 });
           }
@@ -116,7 +142,7 @@ export function toRoutePattern(
   standardMethod: StandardMethod,
   resourceName: string,
   collectionIdentifier?: string,
-  parent?: string
+  parent?: string,
 ): URLPattern {
   switch (standardMethod) {
     case "create":
@@ -130,11 +156,13 @@ export function toRoutePattern(
     case "update":
     case "delete": {
       return new URLPattern({
-        pathname: `${toRoutePath(
-          resourceName,
-          collectionIdentifier,
-          parent
-        )}/:${toCamelCase(resourceName)}`,
+        pathname: `${
+          toRoutePath(
+            resourceName,
+            collectionIdentifier,
+            parent,
+          )
+        }/:${toCamelCase(resourceName)}`,
       });
     }
 
@@ -150,7 +178,7 @@ export function toRoutePattern(
 export function toRoutePath(
   resourceName: string,
   collectionIdentifier?: string,
-  parent?: string
+  parent?: string,
 ): string {
   return `${parent ?? ""}/${
     collectionIdentifier ?? toCollectionIdentifier(resourceName)

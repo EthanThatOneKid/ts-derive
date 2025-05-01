@@ -76,7 +76,6 @@ Deno.test({
         assertEquals(response.status, 200);
 
         const personResponse = await response.json();
-        console.log({ personResponse });
         assertEquals(personResponse.givenName, ash.givenName);
       },
     );
