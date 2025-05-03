@@ -49,8 +49,9 @@ Deno.test({
     };
     const createRoute = standardMethodRoute(Person, options, "create");
     const getRoute = standardMethodRoute(Person, options, "get");
+    const deleteRoute = standardMethodRoute(Person, options, "delete");
     const handler = route(
-      [createRoute, getRoute],
+      [createRoute, getRoute, deleteRoute],
       () => {
         throw new Error("Not implemented");
       },
@@ -98,6 +99,18 @@ Deno.test({
 
         const personResponse = await response.json();
         assertEquals(personResponse.givenName, ash.givenName);
+      },
+    );
+
+    await t.step(
+      "Standard method Delete handler handles valid request",
+      async () => {
+        const request = new Request(
+          `http://localhost/people/${ash.givenName}`,
+          { method: "DELETE", headers: { "X-Session-ID": fakeSessionID } },
+        );
+        const response = await handler(request);
+        assertEquals(response.status, 204);
       },
     );
   },

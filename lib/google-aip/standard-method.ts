@@ -99,8 +99,32 @@ export function standardMethodRoute(
 
       const id = params?.pathname.groups?.[toCamelCase(resourceName)];
       switch (standardMethod) {
+        // https://google.aip.dev/131
+        case "get": {
+          if (id === undefined) {
+            return new Response("No ID", { status: 400 });
+          }
+
+          const kvKey = await options.store.kvKey(
+            decodeURIComponent(id),
+            sessionID,
+          );
+          const result = await options.store.kv.get(kvKey);
+          if (result.value === null) {
+            return new Response("Not found", { status: 404 });
+          }
+
+          return new Response(JSON.stringify(result.value), { status: 200 });
+        }
+
+        // https://google.aip.dev/132
+        case "list": {
+          // https://google.aip.dev/client-libraries/4233
+          throw new Error("Not implemented");
+        }
+
+        // https://google.aip.dev/133
         case "create": {
-          // https://google.aip.dev/133
           // deno-lint-ignore no-explicit-any
           const validated: any = await standardSchema.validate(
             await request.json(),
@@ -120,8 +144,13 @@ export function standardMethodRoute(
           return new Response(JSON.stringify(validated.value), { status: 201 });
         }
 
-        case "get": {
-          // https://google.aip.dev/133
+        // https://google.aip.dev/134
+        case "update": {
+          throw new Error("Not implemented");
+        }
+
+        // https://google.aip.dev/135
+        case "delete": {
           if (id === undefined) {
             return new Response("No ID", { status: 400 });
           }
@@ -130,16 +159,12 @@ export function standardMethodRoute(
             decodeURIComponent(id),
             sessionID,
           );
-          const result = await options.store.kv.get(kvKey);
-          if (result.value === null) {
-            return new Response("Not found", { status: 404 });
-          }
-
-          return new Response(JSON.stringify(result.value), { status: 200 });
+          await options.store.kv.delete(kvKey);
+          return new Response(null, { status: 204 });
         }
 
         default: {
-          return new Response("Method not implemented", { status: 501 });
+          return new Response("Method not allowed", { status: 405 });
         }
       }
     },
