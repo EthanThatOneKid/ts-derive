@@ -55,15 +55,17 @@ Deno.test({
     const createRoute = standardMethodRoute(Person, options, "create");
     const getRoute = standardMethodRoute(Person, options, "get");
     const listRoute = standardMethodRoute(Person, options, "list");
+    const updateRoute = standardMethodRoute(Person, options, "update");
     const deleteRoute = standardMethodRoute(Person, options, "delete");
     const handler = route(
-      [createRoute, getRoute, listRoute, deleteRoute],
+      [createRoute, getRoute, listRoute, updateRoute, deleteRoute],
       () => {
         throw new Error("Not implemented");
       },
     );
 
     const ash = new Person("Ash");
+    const gary = new Person("Gary");
 
     await t.step(
       "Standard method Create handler handles unauthorized request",
@@ -124,10 +126,26 @@ Deno.test({
     );
 
     await t.step(
-      "Standard method Delete handler handles valid request",
+      "Standard method Update handler handles valid request",
       async () => {
         const request = new Request(
           `http://localhost/people/${ash.givenName}`,
+          {
+            method: "PATCH",
+            body: JSON.stringify(gary),
+            headers: { "X-Session-ID": fakeSessionID },
+          },
+        );
+        const response = await handler(request);
+        assertEquals(response.status, 200);
+      },
+    );
+
+    await t.step(
+      "Standard method Delete handler handles valid request",
+      async () => {
+        const request = new Request(
+          `http://localhost/people/${gary.givenName}`,
           { method: "DELETE", headers: { "X-Session-ID": fakeSessionID } },
         );
         const response = await handler(request);

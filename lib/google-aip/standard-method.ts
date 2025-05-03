@@ -6,6 +6,11 @@ import type { Class } from "../../derive.ts";
 import { getDerivedValue } from "../../derive.ts";
 import type { StandardSchema } from "../standard-schema/standard-schema.ts";
 
+// Further reading:
+// - https://google.aip.dev/130 "Methods"
+// - https://google.aip.dev/128 "Declarative-friendly interfaces"
+//
+
 /**
  * StandardMethodRouteOptions are options for standardMethodRoute.
  */
@@ -61,10 +66,19 @@ export interface StandardMethodRouteOptions {
   collectionIdentifier?: string;
   parent?: string;
 
+  /**
+   * allowMissing a boolean that indicates whether a new resource will be
+   * created if it does not exist.
+   *
+   * @see https://google.aip.dev/134#create-or-update
+   */
+  allowMissing?: boolean;
+
   // TODO: Add input and output strategies e.g. request body and URL search params.
   // TODO: Add validation strategies e.g. standardschema.dev, Ajv, Zod, etc.
   // TODO: Add persistent store strategies e.g. Deno.Kv, N3, LibSQL, etc.
   // TODO: Add custom middleware e.g. cors, etc.
+  // TODO: Add options of Etags <https://google.aip.dev/134#etags>.
 }
 
 /**
@@ -170,7 +184,35 @@ export function standardMethodRoute(
 
         // https://google.aip.dev/134
         case "update": {
-          throw new Error("Not implemented");
+          if (id === undefined) {
+            return new Response("No ID", { status: 400 });
+          }
+
+          // deno-lint-ignore no-explicit-any
+          const validated: any = await standardSchema.validate(
+            await request.json(),
+          );
+          if (validated.issues !== undefined) {
+            return new Response(JSON.stringify(validated), { status: 400 });
+          }
+
+          const previousKvKey = await options.store.kvKey(
+            sessionID,
+            decodeURIComponent(id),
+          );
+          const kvKey = await options.store.kvKeyOf(sessionID, validated.value);
+          if (previousKvKey.toString() !== kvKey.toString()) {
+            await options.store.kv.delete(previousKvKey);
+          }
+
+          const result = await options.store.kv.set(kvKey, validated.value, {
+            expireIn: options.store.expireIn,
+          });
+          if (!result.ok) {
+            return new Response(JSON.stringify(result), { status: 500 });
+          }
+
+          return new Response(JSON.stringify(validated.value), { status: 200 });
         }
 
         // https://google.aip.dev/135
