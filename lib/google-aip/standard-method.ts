@@ -10,7 +10,9 @@ import type { StandardSchema } from "../standard-schema/standard-schema.ts";
  * StandardMethodRouteOptions are options for standardMethodRoute.
  */
 export interface StandardMethodRouteOptions {
-  standardMethod: StandardMethod;
+  /**
+   * store contains the options for the persistent store.
+   */
   store: {
     /**
      * kv is the persistent store.
@@ -18,17 +20,20 @@ export interface StandardMethodRouteOptions {
     kv: Deno.Kv;
 
     /**
-     * kvKey returns the key to use by ID.
+     * kvKey returns the key to use by session ID and resource ID.
      */
-    kvKey: (id: string) => Deno.KvKey | Promise<Deno.KvKey>;
+    kvKey: (
+      id: string,
+      sessionID?: string | undefined,
+    ) => Deno.KvKey | Promise<Deno.KvKey>;
 
     /**
      * kvKeyOf calculates the key to use for the resource.
      */
     kvKeyOf: (
       // deno-lint-ignore no-explicit-any
-      resource: any,
-      sessionID?: string,
+      resource?: any,
+      sessionID?: string | undefined,
     ) => Deno.KvKey | Promise<Deno.KvKey>;
 
     /**
@@ -70,11 +75,12 @@ export interface StandardMethodRouteOptions {
 export function standardMethodRoute(
   target: Class,
   options: StandardMethodRouteOptions,
+  standardMethod: StandardMethod,
 ): Route {
   const resourceName = options.resourceName ?? target.name;
-  const method = toHTTPMethod(options.standardMethod);
+  const method = toHTTPMethod(standardMethod);
   const pattern = toRoutePattern(
-    options.standardMethod,
+    standardMethod,
     resourceName,
     options.collectionIdentifier,
     options.parent,
@@ -87,8 +93,12 @@ export function standardMethodRoute(
     method,
     handler: async (request, params, _info) => {
       const sessionID = await options.oAuth2?.getSessionID(request);
+      if (sessionID === undefined && options.oAuth2 !== undefined) {
+        return new Response("Unauthorized", { status: 401 });
+      }
+
       const id = params?.pathname.groups?.[toCamelCase(resourceName)];
-      switch (options.standardMethod) {
+      switch (standardMethod) {
         case "create": {
           // https://google.aip.dev/133
           // deno-lint-ignore no-explicit-any
@@ -100,11 +110,9 @@ export function standardMethodRoute(
           }
 
           const kvKey = await options.store.kvKeyOf(validated.value, sessionID);
-          const result = await options.store.kv.set(
-            kvKey,
-            validated.value,
-            { expireIn: options.store.expireIn },
-          );
+          const result = await options.store.kv.set(kvKey, validated.value, {
+            expireIn: options.store.expireIn,
+          });
           if (!result.ok) {
             return new Response(JSON.stringify(result), { status: 500 });
           }
@@ -118,7 +126,10 @@ export function standardMethodRoute(
             return new Response("No ID", { status: 400 });
           }
 
-          const kvKey = await options.store.kvKey(decodeURIComponent(id));
+          const kvKey = await options.store.kvKey(
+            decodeURIComponent(id),
+            sessionID,
+          );
           const result = await options.store.kv.get(kvKey);
           if (result.value === null) {
             return new Response("Not found", { status: 404 });

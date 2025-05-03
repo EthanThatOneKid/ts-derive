@@ -5,6 +5,7 @@ import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { JSONSchema } from "../json-schema/json-schema.ts";
 import { StandardSchema } from "../standard-schema/standard-schema.ts";
+import type { StandardMethodRouteOptions } from "./standard-method.ts";
 import { standardMethodRoute } from "./standard-method.ts";
 
 @Derive(StandardSchema.auto())
@@ -15,20 +16,59 @@ class Person {
   public constructor(public givenName: string) {}
 }
 
-function personKvKey(id: string) {
-  return ["person", id];
+function personKvKey(id: string, sessionID?: string | undefined) {
+  if (sessionID === undefined) {
+    throw new Error("Unauthorized");
+  }
+
+  return [sessionID, "people", id];
 }
 
-function personKvKeyOf(resource: Person) {
-  return ["person", resource.givenName];
+function personKvKeyOf(person: Person, sessionID?: string | undefined) {
+  if (sessionID === undefined) {
+    throw new Error("Unauthorized");
+  }
+
+  return [sessionID, "people", person.givenName];
 }
+
+const fakeSessionID = "fake-session-id";
 
 Deno.test({
   name: "Google AIP Standard Methods example",
   fn: async (t) => {
     await using kv = await Deno.openKv(":memory:");
 
+    const options: StandardMethodRouteOptions = {
+      store: { kv, kvKey: personKvKey, kvKeyOf: personKvKeyOf },
+      oAuth2: {
+        getSessionID: (request) => {
+          return request.headers.get("X-Session-ID") ?? undefined;
+        },
+      },
+    };
+    const createRoute = standardMethodRoute(Person, options, "create");
+    const getRoute = standardMethodRoute(Person, options, "get");
+    const handler = route(
+      [createRoute, getRoute],
+      () => {
+        throw new Error("Not implemented");
+      },
+    );
+
     const ash = new Person("Ash");
+
+    await t.step(
+      "Standard method Create handler handles unauthorized request",
+      async () => {
+        const request = new Request("http://localhost/people", {
+          method: "POST",
+          body: JSON.stringify(ash),
+        });
+        const response = await handler(request);
+        assertEquals(response.status, 401);
+      },
+    );
 
     await t.step(
       "Standard method Create handler handles valid request",
@@ -36,20 +76,9 @@ Deno.test({
         const request = new Request("http://localhost/people", {
           method: "POST",
           body: JSON.stringify(ash),
+          headers: { "X-Session-ID": fakeSessionID },
         });
-
-        const createRoute = standardMethodRoute(Person, {
-          standardMethod: "create",
-          store: { kv, kvKey: personKvKey, kvKeyOf: personKvKeyOf },
-        });
-
-        const createHandler = route(
-          [createRoute],
-          () => {
-            throw new Error("Not implemented");
-          },
-        );
-        const response = await createHandler(request);
+        const response = await handler(request);
         assertEquals(response.status, 201);
 
         const personResponse = await response.json();
@@ -60,19 +89,11 @@ Deno.test({
     await t.step(
       "Standard method Get handler handles valid request",
       async () => {
-        const request = new Request(`http://localhost/people/${ash.givenName}`);
-
-        const getRoute = standardMethodRoute(Person, {
-          standardMethod: "get",
-          store: { kv, kvKey: personKvKey, kvKeyOf: personKvKeyOf },
-        });
-        const getHandler = route(
-          [getRoute],
-          () => {
-            throw new Error("Not implemented");
-          },
+        const request = new Request(
+          `http://localhost/people/${ash.givenName}`,
+          { headers: { "X-Session-ID": fakeSessionID } },
         );
-        const response = await getHandler(request);
+        const response = await handler(request);
         assertEquals(response.status, 200);
 
         const personResponse = await response.json();
