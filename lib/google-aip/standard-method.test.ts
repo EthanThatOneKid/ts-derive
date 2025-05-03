@@ -16,15 +16,20 @@ class Person {
   public constructor(public givenName: string) {}
 }
 
-function personKvKey(id: string, sessionID?: string | undefined) {
+function personKvKey(sessionID: string | undefined, id?: string) {
   if (sessionID === undefined) {
     throw new Error("Unauthorized");
   }
 
-  return [sessionID, "people", id];
+  const key = [sessionID, "people"];
+  if (id !== undefined) {
+    key.push(id);
+  }
+
+  return key;
 }
 
-function personKvKeyOf(person: Person, sessionID?: string | undefined) {
+function personKvKeyOf(sessionID: string | undefined, person: Person) {
   if (sessionID === undefined) {
     throw new Error("Unauthorized");
   }
@@ -49,9 +54,10 @@ Deno.test({
     };
     const createRoute = standardMethodRoute(Person, options, "create");
     const getRoute = standardMethodRoute(Person, options, "get");
+    const listRoute = standardMethodRoute(Person, options, "list");
     const deleteRoute = standardMethodRoute(Person, options, "delete");
     const handler = route(
-      [createRoute, getRoute, deleteRoute],
+      [createRoute, getRoute, listRoute, deleteRoute],
       () => {
         throw new Error("Not implemented");
       },
@@ -99,6 +105,21 @@ Deno.test({
 
         const personResponse = await response.json();
         assertEquals(personResponse.givenName, ash.givenName);
+      },
+    );
+
+    await t.step(
+      "Standard method List handler handles valid request",
+      async () => {
+        const request = new Request("http://localhost/people", {
+          headers: { "X-Session-ID": fakeSessionID },
+        });
+        const response = await handler(request);
+        assertEquals(response.status, 200);
+
+        const peopleResponse = await response.json();
+        assertEquals(peopleResponse.length, 1);
+        assertEquals(peopleResponse[0].givenName, ash.givenName);
       },
     );
 

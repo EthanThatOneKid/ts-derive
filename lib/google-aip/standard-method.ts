@@ -23,17 +23,17 @@ export interface StandardMethodRouteOptions {
      * kvKey returns the key to use by session ID and resource ID.
      */
     kvKey: (
-      id: string,
-      sessionID?: string | undefined,
+      sessionID: string | undefined,
+      id?: string,
     ) => Deno.KvKey | Promise<Deno.KvKey>;
 
     /**
      * kvKeyOf calculates the key to use for the resource.
      */
     kvKeyOf: (
+      sessionID: string | undefined,
       // deno-lint-ignore no-explicit-any
       resource?: any,
-      sessionID?: string | undefined,
     ) => Deno.KvKey | Promise<Deno.KvKey>;
 
     /**
@@ -106,8 +106,8 @@ export function standardMethodRoute(
           }
 
           const kvKey = await options.store.kvKey(
-            decodeURIComponent(id),
             sessionID,
+            decodeURIComponent(id),
           );
           const result = await options.store.kv.get(kvKey);
           if (result.value === null) {
@@ -120,7 +120,31 @@ export function standardMethodRoute(
         // https://google.aip.dev/132
         case "list": {
           // https://google.aip.dev/client-libraries/4233
-          throw new Error("Not implemented");
+          const prefix = await options.store.kvKey(sessionID);
+
+          // const url = new URL(request.url);
+          // const start = await options.store.kvKey(
+          //   sessionID,
+          //   url.searchParams.get("start") ?? undefined
+          // );
+          // const end = await options.store.kvKey(
+          //   sessionID,
+          //   url.searchParams.get("end") ?? undefined
+          // );
+
+          // // https://docs.deno.com/api/deno/~/Deno.KvListOptions
+          // const iterator = options.store.kv.list({ prefix, start, end });
+
+          const iterator = options.store.kv.list({ prefix });
+          const result = await Array.fromAsync(iterator);
+          return new Response(
+            JSON.stringify(
+              result.map((entry) => {
+                return entry.value;
+              }),
+            ),
+            { status: 200 },
+          );
         }
 
         // https://google.aip.dev/133
@@ -133,7 +157,7 @@ export function standardMethodRoute(
             return new Response(JSON.stringify(validated), { status: 400 });
           }
 
-          const kvKey = await options.store.kvKeyOf(validated.value, sessionID);
+          const kvKey = await options.store.kvKeyOf(sessionID, validated.value);
           const result = await options.store.kv.set(kvKey, validated.value, {
             expireIn: options.store.expireIn,
           });
@@ -156,8 +180,8 @@ export function standardMethodRoute(
           }
 
           const kvKey = await options.store.kvKey(
-            decodeURIComponent(id),
             sessionID,
+            decodeURIComponent(id),
           );
           await options.store.kv.delete(kvKey);
           return new Response(null, { status: 204 });
@@ -240,13 +264,16 @@ export function toHTTPMethod(method: StandardMethod): string {
       return "GET";
     }
 
-    case "create":
-    case "update": {
+    case "create": {
       return "POST";
     }
 
     case "delete": {
       return "DELETE";
+    }
+
+    case "update": {
+      return "PATCH";
     }
 
     default:
