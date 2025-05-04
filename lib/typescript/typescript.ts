@@ -21,9 +21,6 @@ export class TypeScriptClassDeclaration {
     return TypeScriptClassDeclaration.getOrThrow(project);
   }
 
-  // Also return a function that loads the implicit dependencies.
-  // public static async implicit()
-
   /**
    * getOrThrow is a static method that returns a TypeScriptClassDeclaration
    * by its file specifier and identifier.
