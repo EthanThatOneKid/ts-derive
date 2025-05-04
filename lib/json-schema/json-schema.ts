@@ -24,6 +24,9 @@ export interface JSONSchemaOptions {
   schemaOptions?: SchemaOptions;
 }
 
+/**
+ * JSONSchemaObject is the JSON Schema representation of a class.
+ */
 // deno-lint-ignore no-explicit-any
 export type JSONSchemaObject = TTypeBox<any, any, any>;
 
@@ -33,12 +36,21 @@ export type JSONSchemaObject = TTypeBox<any, any, any>;
  * @see https://json-schema.org
  */
 export class JSONSchema {
+  /**
+   * constructor creates a JSON Schema specification.
+   */
   public constructor(public jsonSchema: JSONSchemaObject) {}
 
   // TODO: Associate class with JSONSchema dependencies that are referenced
   // by the class.
 
-  public static auto(options?: JSONSchemaOptions) {
+  /**
+   * auto is a static method that returns a JSONSchema by its TypeScriptClassDeclaration
+   * representation.
+   */
+  public static auto(
+    options?: JSONSchemaOptions,
+  ): (value: TypeScriptClassDeclaration) => JSONSchema {
     return ({ classDeclaration }: TypeScriptClassDeclaration): JSONSchema => {
       return new JSONSchema(
         TypeBoxFromSyntax(

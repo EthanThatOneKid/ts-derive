@@ -2,8 +2,8 @@ import { assert } from "@std/assert/assert";
 import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
-import { JSONSchema } from "./json-schema.ts";
-import { ZodObject } from "./zod-schema.ts";
+import { JSONSchema } from "../json-schema/json-schema.ts";
+import { ZodObject } from "./zod.ts";
 
 const Derive = createDerive(() => FilePath.from(import.meta));
 

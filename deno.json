@@ -1,8 +1,27 @@
 {
   "lock": false,
+  "name": "@fartlabs/derive",
+  "version": "0.0.1",
+  "exports": {
+    ".": "./mod.ts",
+    "./derive": "./derive.ts",
+    "./file-path": "./lib/file-path/file-path.ts",
+    "./json-schema": "./lib/json-schema/json-schema.ts",
+    "./zod": "./lib/zod/zod.ts",
+    "./standard-schema": "./lib/standard-schema/standard-schema.ts",
+    "./typescript": "./lib/typescript/typescript.ts"
+  },
   "tasks": {
-    "test": "deno test --unstable-kv --allow-read --allow-write --allow-sys --allow-env && deno fmt",
-    "outdated": "deno outdated --update --latest"
+    "outdated": "deno outdated --update --latest",
+    "dev": {
+      "description": "Runs all development tasks",
+      "command": "deno fmt",
+      "dependencies": ["check", "test", "lint", "publish:dry"]
+    },
+    "test": "deno test --unstable-kv --allow-read --allow-write --allow-sys --allow-env",
+    "lint": "deno lint && deno doc --lint  **/*.ts",
+    "check": "deno check **/*.ts",
+    "publish:dry": "deno publish --dry-run --allow-dirty"
   },
   "imports": {
     "@sinclair/typebox": "npm:@sinclair/typebox@^0.34.33",

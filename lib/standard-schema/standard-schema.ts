@@ -10,12 +10,19 @@ export type { StandardSchemaV1 };
  * @see https://standardschema.dev/
  */
 export class StandardSchema {
+  /**
+   * constructor creates a Standard Schema.
+   */
   public constructor(public standardSchemaV1: StandardSchemaV1) {}
 
-  // TODO: Associate class with JSONSchema dependencies that are referenced
+  // TODO: Associate class with JSON Schema dependencies that are referenced
   // by the class.
 
-  public static auto() {
+/**
+ * auto is a static method that returns a Standard Schema by its JSONSchema
+ * representation.
+ */
+  public static auto(): (value: JSONSchema) => StandardSchema {
     return ({ jsonSchema }: JSONSchema): StandardSchema => {
       return new StandardSchema(Compile(jsonSchema));
     };

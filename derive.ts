@@ -31,7 +31,7 @@ export type DeriveItem<TInput, TOutput> =
 /**
  * Derive is a decorator that derives a value from a class.
  */
-export const Derive = createDerive();
+export const Derive: DeriveDecorator = createDerive();
 
 /**
  * createDerive creates a Derive decorator.
@@ -57,7 +57,7 @@ export function derive<TInput, TOutput>(
   initialValue?: (target: Class) => TOutput,
   get?: <TInput>(target: Class) => TInput,
   set?: <TOutput>(target: Class, value: TOutput) => void,
-) {
+): Class {
   const value: any = get?.(target) ?? {
     name: target.name,
     ...initialValue?.(target),
