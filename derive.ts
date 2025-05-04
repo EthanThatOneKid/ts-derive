@@ -6,23 +6,44 @@
 export type Class = new (...args: any[]) => any;
 
 /**
+ * DeriveDecorator is a decorator that derives a value from a class.
+ */
+export interface DeriveDecorator {
+  <TInput, TOutput>(...items: DeriveItems<TInput, TOutput>[]): (
+    target: Class,
+  ) => Class;
+}
+
+/**
+ * DeriveItems is a list of derived values or functions to derive a value.
+ */
+export type DeriveItems<TInput, TOutput> =
+  | DeriveItem<TInput, TOutput>
+  | DeriveItems<TInput, TOutput>[];
+
+/**
+ * DeriveItem is a derived value or function to derive a value.
+ */
+export type DeriveItem<TInput, TOutput> =
+  | TOutput
+  | ((input: TInput) => TOutput);
+
+/**
  * Derive is a decorator that derives a value from a class.
  */
-export const Derive = createDerive(getDerivedValue, setDerivedValue);
+export const Derive = createDerive();
 
 /**
  * createDerive creates a Derive decorator.
  */
 export function createDerive(
-  get: Parameters<typeof derive>[2],
-  set: Parameters<typeof derive>[3],
-  initialValue?: Parameters<typeof derive>[4],
-) {
-  return <TInput, TOutput>(
-    ...fns: Array<TOutput | ((input: TInput) => TOutput)>
-  ) => {
+  initialValue?: Parameters<typeof derive>[2],
+  get: Parameters<typeof derive>[3] = getDerivedValue,
+  set: Parameters<typeof derive>[4] = setDerivedValue,
+): DeriveDecorator {
+  return <TInput, TOutput>(...items: DeriveItems<TInput, TOutput>[]) => {
     return (target: Class) => {
-      return derive(target, fns, get, set, initialValue);
+      return derive(target, items, initialValue, get, set);
     };
   };
 }
@@ -32,15 +53,16 @@ export function createDerive(
  */
 export function derive<TInput, TOutput>(
   target: Class,
-  fns: Array<TOutput | ((input: TInput) => TOutput)>,
-  get: <TInput>(target: Class) => TInput,
-  set: <TOutput>(target: Class, value: TOutput) => void,
-  initialValue: (target: Class) => Record<PropertyKey, unknown> = (target) => ({
-    name: target.name,
-  }),
+  items: DeriveItems<TInput, TOutput>[],
+  initialValue?: (target: Class) => TOutput,
+  get?: <TInput>(target: Class) => TInput,
+  set?: <TOutput>(target: Class, value: TOutput) => void,
 ) {
-  const value: any = get(target) ?? initialValue(target);
-  for (const fnOrValue of fns) {
+  const value: any = get?.(target) ?? {
+    name: target.name,
+    ...initialValue?.(target),
+  };
+  for (const fnOrValue of items.flat()) {
     Object.assign(
       value,
       typeof fnOrValue === "function"
@@ -49,7 +71,7 @@ export function derive<TInput, TOutput>(
     );
   }
 
-  set(target, value);
+  set?.(target, value);
   return target;
 }
 

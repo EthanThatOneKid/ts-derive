@@ -1,13 +1,14 @@
 import { assert, assertEquals } from "@std/assert";
-import { Derive, getDerivedValue } from "../../derive.ts";
+import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { serialize } from "./auto-schema.ts";
 import { JSONSchema } from "./json-schema.ts";
 
+const Derive = createDerive(() => FilePath.from(import.meta));
+
 @Derive(JSONSchema.auto())
 @Derive(await TypeScriptClassDeclaration.auto())
-@Derive(FilePath.from(import.meta))
 class Person {
   public familyName?: string;
 

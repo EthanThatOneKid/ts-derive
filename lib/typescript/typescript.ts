@@ -9,35 +9,27 @@ export class TypeScriptClassDeclaration {
   /**
    * constructor is the constructor of the TypeScriptClassDeclaration class.
    */
-  public constructor(
-    // TODO: Expose type info.
-    public classDeclaration: ClassDeclarationStructure,
-  ) {}
+  public constructor(public classDeclaration: ClassDeclarationStructure) {}
 
   /**
-   * auto is a static method that returns a TypeScriptClassDeclaration by its
-   * file specifier and identifier.
+   * auto is a static method implicitly returns a TypeScriptClassDeclaration by
+   * its file specifier and identifier.
    */
-  public static async auto(): Promise<
-    ({
-      name,
-      filePath,
-    }: { name: string } & FilePath) => TypeScriptClassDeclaration
-  > {
+  // deno-lint-ignore no-explicit-any
+  public static async auto(): Promise<any> {
     const { project } = await import("./auto.ts");
     return TypeScriptClassDeclaration.getOrThrow(project);
   }
+
+  // Also return a function that loads the implicit dependencies.
+  // public static async implicit()
 
   /**
    * getOrThrow is a static method that returns a TypeScriptClassDeclaration
    * by its file specifier and identifier.
    */
-  public static getOrThrow(
-    project: Project,
-  ): ({
-    name,
-    filePath,
-  }: { name: string } & FilePath) => TypeScriptClassDeclaration {
+  // deno-lint-ignore no-explicit-any
+  public static getOrThrow(project: Project): any {
     return ({ name, filePath }: { name: string } & FilePath) => {
       return new TypeScriptClassDeclaration(
         getClassStructureOrThrow(project, filePath, name),
