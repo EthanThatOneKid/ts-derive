@@ -1,6 +1,5 @@
 import { Project } from "ts-morph";
 
-
 /**
  * project is the local TypeScript project.
  */

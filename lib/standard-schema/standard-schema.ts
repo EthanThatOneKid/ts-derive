@@ -18,10 +18,10 @@ export class StandardSchema {
   // TODO: Associate class with JSON Schema dependencies that are referenced
   // by the class.
 
-/**
- * auto is a static method that returns a Standard Schema by its JSONSchema
- * representation.
- */
+  /**
+   * auto is a static method that returns a Standard Schema by its JSONSchema
+   * representation.
+   */
   public static auto(): (value: JSONSchema) => StandardSchema {
     return ({ jsonSchema }: JSONSchema): StandardSchema => {
       return new StandardSchema(Compile(jsonSchema));
