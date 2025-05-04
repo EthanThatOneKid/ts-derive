@@ -5,7 +5,7 @@ import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { JSONSchema } from "../json-schema/json-schema.ts";
 import { ZodObject } from "./zod.ts";
 
-const Derive = createDerive(() => FilePath.from(import.meta));
+const Derive = createDerive([FilePath.from(import.meta)]);
 
 @Derive(ZodObject.auto())
 @Derive(JSONSchema.auto())

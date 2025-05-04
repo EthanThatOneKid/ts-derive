@@ -37,13 +37,14 @@ export const Derive: DeriveDecorator = createDerive();
  * createDerive creates a Derive decorator.
  */
 export function createDerive(
+  initialItems: DeriveItems<any, any>[] = [],
   initialValue?: (target: Class) => any,
   get: <TInput>(target: Class) => TInput = getDerivedValue,
   set: <TOutput>(target: Class, value: TOutput) => void = setDerivedValue,
 ): DeriveDecorator {
   return <TInput, TOutput>(...items: DeriveItems<TInput, TOutput>[]) => {
     return (target: Class) => {
-      return derive(target, items, initialValue, get, set);
+      return derive(target, [...initialItems, items], initialValue, get, set);
     };
   };
 }

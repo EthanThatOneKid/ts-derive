@@ -5,7 +5,7 @@ import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { serialize } from "./auto-schema.ts";
 import { JSONSchema } from "./json-schema.ts";
 
-const Derive = createDerive(() => FilePath.from(import.meta));
+const Derive = createDerive([FilePath.from(import.meta)]);
 
 @Derive(JSONSchema.auto())
 @Derive(await TypeScriptClassDeclaration.auto())
