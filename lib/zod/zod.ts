@@ -22,7 +22,9 @@ export class ZodObject {
    * auto is a static method that returns a Zod schema by its JSONSchema
    * representation.
    */
-  public static auto(schema = ((zodObject: AnyZodObject) => zodObject)) {
+  public static auto(
+    schema = ((zodObject: AnyZodObject) => zodObject),
+  ): (value: JSONSchema) => ZodObject {
     return ({ jsonSchema }: JSONSchema): ZodObject => {
       return new ZodObject(schema(Zod(jsonSchema)));
     };
