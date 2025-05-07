@@ -17,9 +17,28 @@ class Person {
 }
 
 Deno.test({
-  name: "Derive ZodSchema example",
+  name: "Derive ZodObject example",
   fn: () => {
     const personSchema = getDerivedValue<ZodObject>(Person).zodObject;
     assert(personSchema.safeParse({ givenName: "Ethan" }).success);
+  },
+});
+
+@Derive(
+  ZodObject.auto((schema) =>
+    schema.describe("Entities that have a somewhat fixed, physical extension.")
+  ),
+)
+@Derive(JSONSchema.auto())
+@Derive(await TypeScriptClassDeclaration.auto())
+class Place {
+  public constructor(public address: string) {}
+}
+
+Deno.test({
+  name: "Derive ZodObject extended example",
+  fn: () => {
+    const placeSchema = getDerivedValue<ZodObject>(Place).zodObject;
+    assert(placeSchema.safeParse({ address: "123 Main St" }).success);
   },
 });
