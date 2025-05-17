@@ -9,7 +9,7 @@ export type { AnyZodObject };
  */
 export class ZodObject {
   /**
-   * constructor is the constructor of the SourceCode class.
+   * constructor is the constructor of the ZodObject class.
    */
   public constructor(
     /**
@@ -23,7 +23,7 @@ export class ZodObject {
    * representation.
    */
   public static auto(
-    schema = ((zodObject: AnyZodObject) => zodObject),
+    schema = (zodObject: AnyZodObject) => zodObject,
   ): (value: JSONSchema) => ZodObject {
     return ({ jsonSchema }: JSONSchema): ZodObject => {
       return new ZodObject(schema(Zod(jsonSchema)));
