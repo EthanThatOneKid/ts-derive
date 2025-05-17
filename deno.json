@@ -7,10 +7,11 @@
     "./derive": "./derive.ts",
     "./file-path": "./lib/file-path/file-path.ts",
     "./json-schema": "./lib/json-schema/json-schema.ts",
+    "./json-schema/isomorphic": "./lib/json-schema/isomorphic.ts",
     "./jsonld": "./lib/jsonld/jsonld.ts",
-    "./zod": "./lib/zod/zod.ts",
     "./standard-schema": "./lib/standard-schema/standard-schema.ts",
-    "./typescript": "./lib/typescript/typescript.ts"
+    "./typescript": "./lib/typescript/typescript.ts",
+    "./zod": "./lib/zod/zod.ts"
   },
   "tasks": {
     "outdated": "deno outdated --update --latest",
