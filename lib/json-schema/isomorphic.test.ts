@@ -1,11 +1,10 @@
-import { assert } from "@std/assert/assert";
 import * as sqlite from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-typebox";
 import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
 import { JSONSchema } from "./json-schema.ts";
-import { isomorphic } from "./isomorphic.ts";
+import { assertIsomorphic } from "./isomorphic.ts";
 
 const Derive = createDerive([
   FilePath.from(import.meta),
@@ -34,6 +33,6 @@ Deno.test({
       Person,
     ).sqliteTable;
     const sqliteSchema = createSelectSchema(personTable);
-    assert(await isomorphic(autoSchema, sqliteSchema));
+    await assertIsomorphic(autoSchema, sqliteSchema);
   },
 });
