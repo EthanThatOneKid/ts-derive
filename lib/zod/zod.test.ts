@@ -1,15 +1,16 @@
 import { assert } from "@std/assert/assert";
+import { assertEquals } from "@std/assert/equals";
 import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
+import { ClassDeclaration } from "../typescript/typescript.ts";
 import { JSONSchema } from "../json-schema/json-schema.ts";
-import { ZodObject } from "./zod.ts";
+import { Zod } from "./zod.ts";
 
-const Derive = createDerive([FilePath.from(import.meta)]);
+const derive = createDerive([FilePath.from(import.meta)]);
 
-@Derive(ZodObject.auto())
-@Derive(JSONSchema.auto())
-@Derive(await TypeScriptClassDeclaration.auto())
+@derive(Zod.auto())
+@derive(JSONSchema.auto())
+@derive(await ClassDeclaration.auto())
 class Person {
   public familyName?: string;
 
@@ -17,28 +18,34 @@ class Person {
 }
 
 Deno.test({
-  name: "Derive ZodObject example",
+  name: "Derive Zod example",
   fn: () => {
-    const personSchema = getDerivedValue<ZodObject>(Person).zodObject;
+    const personSchema = getDerivedValue<Zod>(Person).zodObject;
     assert(personSchema.safeParse({ givenName: "Ethan" }).success);
   },
 });
 
-@Derive(
-  ZodObject.auto((schema) =>
+@derive(
+  Zod.auto((schema) =>
     schema.describe("Entities that have a somewhat fixed, physical extension.")
   ),
 )
-@Derive(JSONSchema.auto())
-@Derive(await TypeScriptClassDeclaration.auto())
+@derive(JSONSchema.auto())
+@derive(await ClassDeclaration.auto())
 class Place {
   public constructor(public address: string) {}
 }
 
 Deno.test({
-  name: "Derive ZodObject extended example",
+  name: "Derive Zod extended example",
   fn: () => {
-    const placeSchema = getDerivedValue<ZodObject>(Place).zodObject;
-    assert(placeSchema.safeParse({ address: "123 Main St" }).success);
+    const placeSchema = getDerivedValue<Zod>(Place).zodObject;
+    const fakePlace = new Place("123 Main St");
+    const actualParse = placeSchema.parse<Place>(fakePlace);
+    assertEquals(actualParse.address, fakePlace.address);
+
+    const actualSafeParse = placeSchema.safeParse<Place>(fakePlace);
+    assert(placeSchema.safeParse<Place>(fakePlace).success);
+    assertEquals(actualSafeParse.data?.address, fakePlace.address);
   },
 });

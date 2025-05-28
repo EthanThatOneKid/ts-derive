@@ -1,14 +1,14 @@
 import { assert, assertEquals } from "@std/assert";
 import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
+import { ClassDeclaration } from "../typescript/typescript.ts";
 import { serialize } from "./auto-schema.ts";
 import { JSONSchema } from "./json-schema.ts";
 
-const Derive = createDerive([FilePath.from(import.meta)]);
+const derive = createDerive([FilePath.from(import.meta)]);
 
-@Derive(JSONSchema.auto())
-@Derive(await TypeScriptClassDeclaration.auto())
+@derive(JSONSchema.auto())
+@derive(await ClassDeclaration.auto())
 class Person {
   public familyName?: string;
 
@@ -29,9 +29,7 @@ Deno.test({
 Deno.test({
   name: "serialize serializes a valid class into an interface",
   fn: () => {
-    const { classDeclaration } = getDerivedValue<TypeScriptClassDeclaration>(
-      Person,
-    );
+    const { classDeclaration } = getDerivedValue<ClassDeclaration>(Person);
     const actual = serialize(classDeclaration);
     assert(actual.includes("givenName: string;"));
     assert(actual.includes("familyName?: string;"));

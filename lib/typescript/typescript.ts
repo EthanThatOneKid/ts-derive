@@ -2,12 +2,12 @@ import type { ClassDeclarationStructure, Project } from "ts-morph";
 import type { FilePath } from "../file-path/file-path.ts";
 
 /**
- * TypeScriptClassDeclaration is the container for the TypeScript declaration
+ * ClassDeclaration is the container for the TypeScript declaration
  * of a class using `ts-morph`.
  */
-export class TypeScriptClassDeclaration {
+export class ClassDeclaration {
   /**
-   * constructor is the constructor of the TypeScriptClassDeclaration class.
+   * constructor is the constructor of the ClassDeclaration class.
    */
   public constructor(public classDeclaration: ClassDeclarationStructure) {}
 
@@ -18,7 +18,7 @@ export class TypeScriptClassDeclaration {
   // deno-lint-ignore no-explicit-any
   public static async auto(): Promise<any> {
     const { project } = await import("./auto.ts");
-    return TypeScriptClassDeclaration.getOrThrow(project);
+    return ClassDeclaration.getOrThrow(project);
   }
 
   /**
@@ -28,7 +28,7 @@ export class TypeScriptClassDeclaration {
   // deno-lint-ignore no-explicit-any
   public static getOrThrow(project: Project): any {
     return ({ name, filePath }: { name: string } & FilePath) => {
-      return new TypeScriptClassDeclaration(
+      return new ClassDeclaration(
         getClassStructureOrThrow(project, filePath, name),
       );
     };

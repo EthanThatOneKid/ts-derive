@@ -52,28 +52,20 @@ of a class using `ts-morph`.
 
 ```ts
 import { assertEquals } from "@std/assert/equals";
-import { Project } from "ts-morph";
-import { Derive, getDerivedValue } from "../../derive.ts";
+import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { TypeScriptClassDeclaration } from "./typescript.ts";
+import { ClassDeclaration } from "./typescript.ts";
 
-const filePath = new FilePath("./lib/typescript/typescript.test.ts");
-const project = new Project();
-project.addSourceFileAtPath(filePath.filePath);
+const derive = createDerive([FilePath.from(import.meta)]);
 
-@Derive<{ name: string } & FilePath, TypeScriptClassDeclaration>(
-  ({ name, filePath }) =>
-    TypeScriptClassDeclaration.getOrThrow(project, filePath, name),
-)
-@Derive(filePath)
+@derive(await ClassDeclaration.auto())
 class Person {}
 
 Deno.test({
-  name: "Derive TypeScriptClassDeclaration example",
+  name: "Derive TypeScriptClassDeclaration example (auto)",
   fn: () => {
-    const actual =
-      getDerivedValue<TypeScriptClassDeclaration>(Person).classDeclaration;
-    assertEquals(actual.name, "Person");
+    const actual = getDerivedValue<ClassDeclaration>(Person);
+    assertEquals(actual.classDeclaration.name, "Person");
   },
 });
 ```

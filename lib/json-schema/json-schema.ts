@@ -1,7 +1,7 @@
 import type { SchemaOptions, TParameters } from "@sinclair/typebox";
 import type { TTypeBox } from "@sinclair/typemap";
 import { TypeBoxFromSyntax } from "@sinclair/typemap";
-import type { TypeScriptClassDeclaration } from "../typescript/typescript.ts";
+import type { ClassDeclaration } from "../typescript/typescript.ts";
 import { serialize } from "./auto-schema.ts";
 
 /**
@@ -50,8 +50,8 @@ export class JSONSchema {
    */
   public static auto(
     options?: JSONSchemaOptions,
-  ): (value: TypeScriptClassDeclaration) => JSONSchema {
-    return ({ classDeclaration }: TypeScriptClassDeclaration): JSONSchema => {
+  ): (value: ClassDeclaration) => JSONSchema {
+    return ({ classDeclaration }: ClassDeclaration): JSONSchema => {
       return new JSONSchema(
         TypeBoxFromSyntax(
           options?.context ?? {},

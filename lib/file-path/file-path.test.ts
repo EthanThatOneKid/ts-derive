@@ -1,8 +1,8 @@
 import { assertEquals } from "@std/assert/equals";
-import { Derive, getDerivedValue } from "../../derive.ts";
+import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "./file-path.ts";
 
-@Derive(FilePath.from(import.meta))
+@derive(FilePath.from(import.meta))
 class Person {}
 
 Deno.test({

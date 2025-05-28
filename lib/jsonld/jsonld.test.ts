@@ -1,8 +1,8 @@
 import { assertEquals } from "@std/assert/equals";
-import { Derive, getDerivedValue } from "../../derive.ts";
+import { derive, getDerivedValue } from "../../derive.ts";
 import { JSONLd } from "./jsonld.ts";
 
-@Derive(JSONLd.context("https://schema.org/"))
+@derive(JSONLd.context("https://schema.org/"))
 class Person {}
 
 Deno.test({
