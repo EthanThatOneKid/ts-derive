@@ -45,7 +45,7 @@ export class JSONSchema {
   // by the class.
 
   /**
-   * auto is a static method that returns a JSONSchema by its TypeScriptClassDeclaration
+   * auto is a static method that returns a JSONSchema by its ClassDeclaration
    * representation.
    */
   public static auto(

@@ -62,7 +62,7 @@ const derive = createDerive([FilePath.from(import.meta)]);
 class Person {}
 
 Deno.test({
-  name: "Derive TypeScriptClassDeclaration example (auto)",
+  name: "Derive ClassDeclaration example (auto)",
   fn: () => {
     const actual = getDerivedValue<ClassDeclaration>(Person);
     assertEquals(actual.classDeclaration.name, "Person");

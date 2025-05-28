@@ -28,7 +28,7 @@ function getInterfaceDeclaration({
   ...classDeclaration
 }: ClassDeclarationStructure): OptionalKind<InterfaceDeclarationStructure> {
   if (!classDeclaration.name) {
-    throw new Error("TypeScriptClassDeclaration must have a name.");
+    throw new Error("ClassDeclaration must have a name.");
   }
 
   return {

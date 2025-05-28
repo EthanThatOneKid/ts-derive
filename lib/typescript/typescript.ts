@@ -12,7 +12,7 @@ export class ClassDeclaration {
   public constructor(public classDeclaration: ClassDeclarationStructure) {}
 
   /**
-   * auto is a static method implicitly returns a TypeScriptClassDeclaration by
+   * auto is a static method implicitly returns a ClassDeclaration by
    * its file specifier and identifier.
    */
   // deno-lint-ignore no-explicit-any
@@ -22,7 +22,7 @@ export class ClassDeclaration {
   }
 
   /**
-   * getOrThrow is a static method that returns a TypeScriptClassDeclaration
+   * getOrThrow is a static method that returns a ClassDeclaration
    * by its file specifier and identifier.
    */
   // deno-lint-ignore no-explicit-any

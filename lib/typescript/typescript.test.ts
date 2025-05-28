@@ -13,7 +13,7 @@ project.addSourceFileAtPath(filePath.filePath);
 class Person {}
 
 Deno.test({
-  name: "Derive TypeScriptClassDeclaration example",
+  name: "Derive ClassDeclaration example",
   fn: () => {
     const actual = getDerivedValue<ClassDeclaration>(Person).classDeclaration;
     assertEquals(actual.name, "Person");
