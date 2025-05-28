@@ -37,8 +37,12 @@ export const derive: DeriveDecorator = createDerive();
  * createDerive creates a Derive decorator.
  */
 export function createDerive(
-  initialItems: DeriveItems<any, any>[] = [],
-  initialValue?: (target: Class) => any,
+  initializeItems:
+    | DeriveItems<any, any>[]
+    | ((items: DeriveItems<any, any>[]) => DeriveItems<any, any>[]) = (
+      items: DeriveItems<any, any>[],
+    ) => [...items],
+  initializeValue?: (target: Class) => any,
   get: <TInput>(target: Class) => TInput = getDerivedValue,
   set: <TOutput>(target: Class, value: TOutput) => void = setDerivedValue,
 ): DeriveDecorator {
@@ -46,8 +50,10 @@ export function createDerive(
     return (target: Class) => {
       return deriveClass(
         target,
-        [...initialItems, items],
-        initialValue,
+        typeof initializeItems === "function"
+          ? initializeItems(items)
+          : [...initializeItems, ...items],
+        initializeValue,
         get,
         set,
       );
@@ -61,13 +67,13 @@ export function createDerive(
 export function deriveClass<TInput, TOutput>(
   target: Class,
   items: DeriveItems<TInput, TOutput>[],
-  initialValue?: (target: Class) => TOutput,
+  initializeValue?: (target: Class) => TOutput,
   get?: <TInput>(target: Class) => TInput,
   set?: <TOutput>(target: Class, value: TOutput) => void,
 ): Class {
   const value: any = get?.(target) ?? {
     name: target.name,
-    ...initialValue?.(target),
+    ...initializeValue?.(target),
   };
   for (const fnOrValue of items.flat()) {
     Object.assign(

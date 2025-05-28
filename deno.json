@@ -1,7 +1,7 @@
 {
   "lock": false,
   "name": "@fartlabs/derive",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "exports": {
     ".": "./mod.ts",
     "./derive": "./derive.ts",

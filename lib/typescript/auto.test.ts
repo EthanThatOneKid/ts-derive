@@ -3,9 +3,10 @@ import { createDerive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { ClassDeclaration } from "./typescript.ts";
 
-const derive = createDerive([FilePath.from(import.meta)]);
+const defaultItem = await ClassDeclaration.auto();
+const derive = createDerive((items) => [...items, defaultItem]);
 
-@derive(await ClassDeclaration.auto())
+@derive(FilePath.from(import.meta))
 class Person {}
 
 Deno.test({
