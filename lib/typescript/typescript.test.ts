@@ -4,12 +4,13 @@ import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import { ClassDeclaration } from "./typescript.ts";
 
-const filePath = new FilePath("./lib/typescript/typescript.test.ts");
+const filePath = FilePath.fromMeta(import.meta);
 const project = new Project();
 project.addSourceFileAtPath(filePath.filePath);
 
-@derive(ClassDeclaration.getOrThrow(project))
-@derive(filePath)
+const classDeclaration = ClassDeclaration.getOrThrow(project);
+
+@derive(filePath, classDeclaration)
 class Person {}
 
 Deno.test({

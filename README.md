@@ -47,18 +47,19 @@ costs.
 
 ## Example
 
-The following example illustrates how to derive the TypeScript class declaration
-of a class using `ts-morph`.
+The following [example](./lib/typescript/auto.test.ts) illustrates how to derive
+the TypeScript class declaration of a class using `ts-morph`.
 
 ```ts
 import { assertEquals } from "@std/assert/equals";
-import { createDerive, getDerivedValue } from "../../derive.ts";
+import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { ClassDeclaration } from "./typescript.ts";
+import type { ClassDeclaration } from "./typescript.ts";
+import { classDeclaration } from "./typescript.ts";
 
-const derive = createDerive([FilePath.from(import.meta)]);
+const filePath = FilePath.fromMeta(import.meta);
 
-@derive(await ClassDeclaration.auto())
+@derive(filePath, classDeclaration)
 class Person {}
 
 Deno.test({

@@ -13,9 +13,10 @@ export class FilePath {
   ) {}
 
   /**
-   * from is a static method that returns the file path location of a class.
+   * fromMeta is a static method that returns the file path location of a
+   * class.
    */
-  public static from(meta: ImportMeta): FilePath {
+  public static fromMeta(meta: ImportMeta): FilePath {
     return new FilePath(meta.url.replace(/^file:\/\/\//, ""));
   }
 }

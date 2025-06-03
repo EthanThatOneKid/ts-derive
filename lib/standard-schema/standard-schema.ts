@@ -28,3 +28,10 @@ export class StandardSchema {
     };
   }
 }
+
+/**
+ * standardSchema is a derive operation that automatically returns
+ * a StandardSchema by its JSONSchema representation.
+ */
+export const standardSchema: (value: JSONSchema) => StandardSchema =
+  StandardSchema.auto();

@@ -1,16 +1,14 @@
 import { assert } from "@std/assert/assert";
 import { assertEquals } from "@std/assert/equals";
-import { createDerive, getDerivedValue } from "../../derive.ts";
+import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { ClassDeclaration } from "../typescript/typescript.ts";
-import { JSONSchema } from "../json-schema/json-schema.ts";
+import { classDeclaration } from "../typescript/typescript.ts";
+import { jsonSchema } from "../json-schema/json-schema.ts";
 import { Zod } from "./zod.ts";
+import { zod } from "./zod.ts";
 
-const derive = createDerive([FilePath.from(import.meta)]);
-
-@derive(Zod.auto())
-@derive(JSONSchema.auto())
-@derive(await ClassDeclaration.auto())
+const filePath = FilePath.fromMeta(import.meta);
+@derive(filePath, classDeclaration, jsonSchema, zod)
 class Person {
   public familyName?: string;
 
@@ -26,12 +24,13 @@ Deno.test({
 });
 
 @derive(
+  filePath,
+  classDeclaration,
+  jsonSchema,
   Zod.auto((schema) =>
     schema.describe("Entities that have a somewhat fixed, physical extension.")
   ),
 )
-@derive(JSONSchema.auto())
-@derive(await ClassDeclaration.auto())
 class Place {
   public constructor(public address: string) {}
 }

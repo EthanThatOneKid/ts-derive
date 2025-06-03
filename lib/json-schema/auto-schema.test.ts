@@ -1,14 +1,15 @@
 import { assert, assertEquals } from "@std/assert";
-import { createDerive, getDerivedValue } from "../../derive.ts";
+import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { ClassDeclaration } from "../typescript/typescript.ts";
+import type { ClassDeclaration } from "../typescript/typescript.ts";
+import { classDeclaration } from "../typescript/typescript.ts";
 import { serialize } from "./auto-schema.ts";
-import { JSONSchema } from "./json-schema.ts";
+import type { JSONSchema } from "./json-schema.ts";
+import { jsonSchema } from "./json-schema.ts";
 
-const derive = createDerive([FilePath.from(import.meta)]);
+const filePath = FilePath.fromMeta(import.meta);
 
-@derive(JSONSchema.auto())
-@derive(await ClassDeclaration.auto())
+@derive(filePath, classDeclaration, jsonSchema)
 class Person {
   public familyName?: string;
 
@@ -18,8 +19,7 @@ class Person {
 Deno.test({
   name: "Derive JSONSchema example",
   fn: () => {
-    // deno-lint-ignore no-explicit-any
-    const actual = getDerivedValue<any>(Person).jsonSchema;
+    const actual = getDerivedValue<JSONSchema>(Person).jsonSchema;
     assertEquals(actual.properties.familyName.type, "string");
     assertEquals(actual.properties.givenName.type, "string");
     assertEquals(actual.required, ["givenName"]);

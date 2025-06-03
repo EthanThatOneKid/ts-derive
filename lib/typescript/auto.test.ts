@@ -1,12 +1,12 @@
 import { assertEquals } from "@std/assert/equals";
-import { createDerive, getDerivedValue } from "../../derive.ts";
+import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { ClassDeclaration } from "./typescript.ts";
+import type { ClassDeclaration } from "./typescript.ts";
+import { classDeclaration } from "./typescript.ts";
 
-const defaultItem = await ClassDeclaration.auto();
-const derive = createDerive((items) => [...items, defaultItem]);
+const filePath = FilePath.fromMeta(import.meta);
 
-@derive(FilePath.from(import.meta))
+@derive(filePath, classDeclaration)
 class Person {}
 
 Deno.test({

@@ -62,3 +62,10 @@ export class JSONSchema {
     };
   }
 }
+
+/**
+ * jsonSchema is a derive operation that automatically returns
+ * a JSONSchema by its ClassDeclaration representation.
+ */
+export const jsonSchema: (value: ClassDeclaration) => JSONSchema = JSONSchema
+  .auto();

@@ -1,14 +1,14 @@
 import { assertEquals } from "@std/assert";
 import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { ClassDeclaration } from "../typescript/typescript.ts";
-import { JSONSchema } from "../json-schema/json-schema.ts";
-import { StandardSchema } from "./standard-schema.ts";
+import { classDeclaration } from "../typescript/typescript.ts";
+import { jsonSchema } from "../json-schema/json-schema.ts";
+import type { StandardSchema } from "./standard-schema.ts";
+import { standardSchema } from "./standard-schema.ts";
 
-@derive(StandardSchema.auto())
-@derive(JSONSchema.auto())
-@derive(await ClassDeclaration.auto())
-@derive(FilePath.from(import.meta))
+const filePath = FilePath.fromMeta(import.meta);
+
+@derive(filePath, classDeclaration, jsonSchema, standardSchema)
 class Person {
   public constructor(public givenName: string) {}
 }

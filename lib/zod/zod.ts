@@ -46,3 +46,9 @@ export class Zod {
     };
   }
 }
+
+/**
+ * zod is a derive operation that automatically returns
+ * a Zod object schema by its JSONSchema representation.
+ */
+export const zod: (value: JSONSchema) => Zod = Zod.auto();
