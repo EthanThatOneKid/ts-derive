@@ -45,10 +45,3 @@ function getClassStructureOrThrow(
   const classDeclaration = sourceFile.getClassOrThrow(name);
   return classDeclaration.getStructure();
 }
-
-/**
- * classDeclaration is a derive operation that automatically returns
- * a ClassDeclaration by its file specifier and identifier.
- */
-// deno-lint-ignore no-explicit-any
-export const classDeclaration: any = await ClassDeclaration.auto();

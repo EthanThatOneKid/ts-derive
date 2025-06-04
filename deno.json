@@ -1,7 +1,7 @@
 {
   "lock": false,
   "name": "@fartlabs/derive",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "exports": {
     ".": "./mod.ts",
     "./derive": "./derive.ts",
@@ -22,7 +22,7 @@
     },
     "test": "deno test --unstable-kv --allow-read --allow-write --allow-sys --allow-env",
     "lint": "deno lint && deno doc --lint  **/*.ts",
-    "check": "deno check **/*.ts",
+    "check": "deno check",
     "publish:dry": "deno publish --dry-run --allow-dirty"
   },
   "imports": {

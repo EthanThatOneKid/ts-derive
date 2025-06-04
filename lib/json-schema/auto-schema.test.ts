@@ -2,7 +2,7 @@ import { assert, assertEquals } from "@std/assert";
 import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import type { ClassDeclaration } from "../typescript/typescript.ts";
-import { classDeclaration } from "../typescript/typescript.ts";
+import { classDeclaration } from "../typescript/auto.ts";
 import { serialize } from "./auto-schema.ts";
 import type { JSONSchema } from "./json-schema.ts";
 import { jsonSchema } from "./json-schema.ts";

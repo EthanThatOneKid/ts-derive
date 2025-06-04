@@ -2,13 +2,12 @@ import * as sqlite from "drizzle-orm/sqlite-core";
 import { createSelectSchema } from "drizzle-typebox";
 import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { ClassDeclaration } from "../typescript/typescript.ts";
-import { JSONSchema } from "./json-schema.ts";
+import { classDeclaration } from "../typescript/auto.ts";
+import type { JSONSchema } from "./json-schema.ts";
+import { jsonSchema } from "./json-schema.ts";
 import { assertIsomorphic } from "./isomorphic.ts";
 
 const filePath = FilePath.fromMeta(import.meta);
-const classDeclaration = await ClassDeclaration.auto();
-const jsonSchema = JSONSchema.auto();
 
 @derive(filePath, classDeclaration, jsonSchema, {
   sqliteTable: sqlite.sqliteTable("person", {

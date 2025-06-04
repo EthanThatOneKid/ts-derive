@@ -2,12 +2,13 @@ import { assert } from "@std/assert/assert";
 import { assertEquals } from "@std/assert/equals";
 import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { classDeclaration } from "../typescript/typescript.ts";
+import { classDeclaration } from "../typescript/auto.ts";
 import { jsonSchema } from "../json-schema/json-schema.ts";
 import { Zod } from "./zod.ts";
 import { zod } from "./zod.ts";
 
 const filePath = FilePath.fromMeta(import.meta);
+
 @derive(filePath, classDeclaration, jsonSchema, zod)
 class Person {
   public familyName?: string;

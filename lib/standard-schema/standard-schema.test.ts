@@ -1,7 +1,7 @@
 import { assertEquals } from "@std/assert";
 import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
-import { classDeclaration } from "../typescript/typescript.ts";
+import { classDeclaration } from "../typescript/auto.ts";
 import { jsonSchema } from "../json-schema/json-schema.ts";
 import type { StandardSchema } from "./standard-schema.ts";
 import { standardSchema } from "./standard-schema.ts";
