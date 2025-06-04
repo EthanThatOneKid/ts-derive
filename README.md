@@ -8,20 +8,19 @@ The "Derive" pattern with TypeScript decorators.
 
 ## Overview
 
-`ts-derive` is a TypeScript library inspired by Rust's powerful `derive`
-attribute. Just as Rust's `derive` allows you to automatically implement traits
-for your types based on simple annotations, `ts-derive` enables you to attach
-semantic metadata to your TypeScript classes and their members using decorators,
-promoting a clean, declarative programming style.
+`ts-derive` is a TypeScript library inspired by Rust's powerful
+[`derive` attribute](https://doc.rust-lang.org/reference/attributes/derive.html).
+Just as Rust's `derive` allows developers to automatically implement traits for
+their types based on simple annotations, `ts-derive` enables developers to
+implement interfaces for their TypeScript classes based on simple annotations.
 
 The primary goal of `ts-derive` is to shift the focus from manually implementing
-boilerplate logic to declaring _what_ your code represents and _what
-capabilities it should have_. By leveraging these declarations (applied via
-decorators), the library can automate the generation of significant portions of
-your application's components, reducing manual coding effort and potential
-errors.
+boilerplate logic to declaring _what_ the code represents and _what capabilities
+it should have_. By leveraging these declarations (applied via decorators), the
+library can automate the generation of significant portions of the application's
+components, reducing manual coding effort and potential errors.
 
-A key capability enabled by `ts-derive` is the ability to use your source code
+A key capability enabled by `ts-derive` is the ability to use the source code
 itself as a rich knowledge base. Through code introspection and the metadata
 provided by decorators, `ts-derive` can extract structured information. This
 knowledge can be represented and processed, potentially enabling advanced use
@@ -35,10 +34,6 @@ cases such as:
   object).
 - **Rule-Based Reasoning:** Inferring implicit knowledge or verifying
   constraints based on the declared metadata.
-- **Linked Data Applications:** Utilizing the extracted and structured
-  knowledge, potentially accessible via protocols like SPARQL, to build
-  sophisticated linked data applications, as discussed in areas like "Thinking
-  with Knowledge Graphs: Enhancing LLM Reasoning Through Structured Data."
 
 By providing an abstraction layer for annotations and powerful introspection
 capabilities, `ts-derive` empowers developers to precisely build robust,
@@ -55,7 +50,7 @@ import { assertEquals } from "@std/assert/equals";
 import { derive, getDerivedValue } from "../../derive.ts";
 import { FilePath } from "../file-path/file-path.ts";
 import type { ClassDeclaration } from "./typescript.ts";
-import { classDeclaration } from "./typescript.ts";
+import { classDeclaration } from "./auto.ts";
 
 const filePath = FilePath.fromMeta(import.meta);
 
